@@ -1,1 +1,8 @@
-<Solution />
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Clarity.Dev.CLI/Clarity.Dev.CLI.csproj" Id="dadfd712-1c14-41de-bdc9-2f8d1a360273" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Clarity.Dev.Tests/Clarity.Dev.Tests.csproj" Id="90f87df5-dd62-42f7-a365-c897bc3437c0" />
+  </Folder>
+</Solution>
