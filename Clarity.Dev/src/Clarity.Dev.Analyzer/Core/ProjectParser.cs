@@ -68,6 +68,9 @@ public class ProjectParser
             ParseSlnxProject(projectInfo, project.FilePath);
         }
 
+        // Detect if this is a test project
+        projectInfo.IsTestProject = IsTestProject(projectInfo);
+
         return await Task.FromResult(projectInfo);
     }
     
@@ -129,5 +132,24 @@ public class ProjectParser
         {
             Console.WriteLine($"Warning: Error parsing project file {projectPath}: {ex.Message}");
         }
+    }
+
+    private bool IsTestProject(SolutionModels.ProjectInfo project)
+    {
+        // Validate project name
+        if (project.Name.Contains("Test", StringComparison.OrdinalIgnoreCase) ||
+            project.Name.Contains("Spec", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        // Check for common test framework dependencies
+        var testFrameworks = new List<string>()
+        {
+            "xunit", "nunit", "mstest", "xunit.core"
+        };
+
+        return project.NuGetDependencies.Any(dependency =>
+            testFrameworks.Any(testFramework => dependency.PackageName.Contains(testFramework, StringComparison.OrdinalIgnoreCase)));
     }
 }
