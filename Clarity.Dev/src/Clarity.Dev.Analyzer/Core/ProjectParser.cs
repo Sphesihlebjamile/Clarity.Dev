@@ -1,4 +1,7 @@
-﻿namespace Clarity.Dev.NET.Analyzer.Core;
+﻿using Clarity.Dev.NET.Core.Models;
+using System.Xml.Linq;
+
+namespace Clarity.Dev.NET.Analyzer.Core;
 
 /// <summary>
 /// Parses individual project files and extracts metadata.
@@ -62,27 +65,69 @@ public class ProjectParser
         // For .slnx files, parse the project directly
         else if (!string.IsNullOrEmpty(project.FilePath))
         {
+            ParseSlnxProject(projectInfo, project.FilePath);
         }
 
         return await Task.FromResult(projectInfo);
     }
-
-    private bool IsTestProject(SolutionModels.ProjectInfo project)
+    
+    private void ParseSlnxProject(SolutionModels.ProjectInfo projectInfo, string projectPath)
     {
-        // Validate project name
-        if(project.Name.Contains("Test", StringComparison.OrdinalIgnoreCase) ||
-            project.Name.Contains("Spec", StringComparison.OrdinalIgnoreCase))
+        try
         {
-            return true;
+            var xdocument = XDocument.Load(projectPath);
+            var xnamespace = xdocument.Root?.Name?.Namespace ?? XNamespace.None;
+
+            if (xdocument is null || xnamespace is null)
+                return;
+
+            // Extract target framework
+            var targetFramework = xdocument.Descendants(xnamespace + "TargetFramework").FirstOrDefault()?.Value
+                ?? xdocument?.Descendants(xnamespace + "TargetFramework").FirstOrDefault()?.Value?.Split(";").FirstOrDefault()
+                ?? "Unknown";
+            projectInfo.TargetFramework = targetFramework;
+
+            // Extract C# langauge version
+            projectInfo.CSharpVersion = xdocument.Descendants(xnamespace + "LangVersion").FirstOrDefault()?.Value ?? "Default";
+
+            // Extract output type
+            projectInfo.OutputType = xdocument.Descendants(xnamespace + "OutputType").FirstOrDefault()?.Value ?? "Library";
+
+            // Extract NuGet package references
+            var packageRefs = xdocument.Descendants(xnamespace + "PackageReference");
+            foreach (var packageRef in packageRefs)
+            {
+                var packageName = packageRef.Attribute("Include")?.Value;
+                var version = packageRef.Attribute("Version")?.Value
+                    ?? packageRef.Element(xnamespace + "Version")?.Value
+                    ?? "Unknown";
+
+                if (!string.IsNullOrEmpty(packageName))
+                {
+                    projectInfo.NuGetDependencies.Add(new DependencyInfo
+                    {
+                        PackageName = packageName,
+                        Version = version,
+                        IsDirectDependency = true
+                    });
+                }
+            }
+
+            // Extract project references
+            var projectRefs = xdocument.Descendants(xnamespace + "ProjectReference");
+            foreach (var projRef in projectRefs)
+            {
+                var includePath = projRef.Attribute("Include")?.Value;
+                if (!string.IsNullOrEmpty(includePath))
+                {
+                    var refName = Path.GetFileNameWithoutExtension(includePath);
+                    projectInfo.ProjectReferences.Add(refName);
+                }
+            }
         }
-
-        // Check for common test framework dependencies
-        var testFrameworks = new List<string>()
+        catch(Exception ex)
         {
-            "xunit", "nunit", "mstest", "xunit.core"
-        };
-
-        return project.NuGetDependencies.Any(dependency =>
-            testFrameworks.Any(testFramework => dependency.PackageName.Contains(testFramework, StringComparison.OrdinalIgnoreCase)));
+            Console.WriteLine($"Warning: Error parsing project file {projectPath}: {ex.Message}");
+        }
     }
 }
