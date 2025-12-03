@@ -8,7 +8,7 @@ public class SolutionScanner
     /// <param name="solutionPath"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<SolutionAnalysisResult> AnalyzeSolutionAsync(
+    public async Task<SolutionModels.SolutionAnalysisResult> AnalyzeSolutionAsync(
         string solutionPath,
         CancellationToken cancellationToken = default)
     {
@@ -19,7 +19,7 @@ public class SolutionScanner
             throw new FileNotFoundException("Solution file not found.", solutionPath);
         }
 
-        var result = new SolutionAnalysisResult
+        var result = new SolutionModels.SolutionAnalysisResult
         {
             SolutionName = Path.GetFileNameWithoutExtension(solutionPath),
             SolutionPath = solutionPath,
