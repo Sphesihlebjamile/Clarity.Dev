@@ -2,6 +2,10 @@
   <Folder Name="/src/">
     <Project Path="src/Clarity.Dev.CLI/Clarity.Dev.CLI.csproj" Id="dadfd712-1c14-41de-bdc9-2f8d1a360273" />
   </Folder>
+  <Folder Name="/src/NET/">
+    <Project Path="src/Clarity.Dev.Analyzer/Clarity.Dev.NET.Analyzer.csproj" Id="b1c01fe8-9406-477d-a5a0-ea9a7aa1189a" />
+    <Project Path="src/Clarity.Dev.NET.Core/Clarity.Dev.NET.Core.csproj" Id="1ec354a7-dc0d-4d43-af8a-e14ea68c8d61" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Clarity.Dev.Tests/Clarity.Dev.Tests.csproj" Id="90f87df5-dd62-42f7-a365-c897bc3437c0" />
   </Folder>

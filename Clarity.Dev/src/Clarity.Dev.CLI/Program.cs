@@ -1,4 +1,13 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿
+DisplayIntro();
 
-Console.ReadLine();
+Console.WriteLine("The project works!!");
+
+
+static void DisplayIntro()
+{
+    Console.WriteLine("╔════════════════════════════════════════╗");
+    Console.WriteLine("║   Onboard.NET Solution Analyzer        ║");
+    Console.WriteLine("╚════════════════════════════════════════╝");
+    Console.WriteLine();
+}
