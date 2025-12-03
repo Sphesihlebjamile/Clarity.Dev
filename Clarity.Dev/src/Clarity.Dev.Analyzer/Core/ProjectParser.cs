@@ -66,4 +66,23 @@ public class ProjectParser
 
         return await Task.FromResult(projectInfo);
     }
+
+    private bool IsTestProject(SolutionModels.ProjectInfo project)
+    {
+        // Validate project name
+        if(project.Name.Contains("Test", StringComparison.OrdinalIgnoreCase) ||
+            project.Name.Contains("Spec", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        // Check for common test framework dependencies
+        var testFrameworks = new List<string>()
+        {
+            "xunit", "nunit", "mstest", "xunit.core"
+        };
+
+        return project.NuGetDependencies.Any(dependency =>
+            testFrameworks.Any(testFramework => dependency.PackageName.Contains(testFramework, StringComparison.OrdinalIgnoreCase)));
+    }
 }
