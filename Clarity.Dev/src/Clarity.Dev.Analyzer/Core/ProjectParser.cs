@@ -1,13 +1,17 @@
-﻿using Clarity.Dev.NET.Core.Models;
-using System.Xml.Linq;
-
-namespace Clarity.Dev.NET.Analyzer.Core;
+﻿namespace Clarity.Dev.NET.Analyzer.Core;
 
 /// <summary>
-/// Parses individual project files and extracts metadata.
+/// Parses individual project files and extracts metadata 🦢
 /// </summary>
 public class ProjectParser
 {
+    /// <summary>
+    /// Parses a Roslyn project and extracts all relevant information 🦢
+    /// </summary>
+    /// <param name="project"></param>
+    /// <param name="manager"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<SolutionModels.ProjectInfo> ParseProjectAsync(
         Project project,
         AnalyzerManager? manager,
@@ -73,8 +77,13 @@ public class ProjectParser
 
         return await Task.FromResult(projectInfo);
     }
-    
-    private void ParseSlnxProject(SolutionModels.ProjectInfo projectInfo, string projectPath)
+
+    /// <summary>
+    /// Parses a .xlnx file 🦢
+    /// </summary>
+    /// <param name="projectInfo"></param>
+    /// <param name="projectPath"></param>
+    private static void ParseSlnxProject(SolutionModels.ProjectInfo projectInfo, string projectPath)
     {
         try
         {
@@ -134,7 +143,12 @@ public class ProjectParser
         }
     }
 
-    private bool IsTestProject(SolutionModels.ProjectInfo project)
+    /// <summary>
+    /// Determines if a project is a test project based on naming and dependencies
+    /// </summary>
+    /// <param name="project"></param>
+    /// <returns></returns>
+    private static bool IsTestProject(SolutionModels.ProjectInfo project)
     {
         // Validate project name
         if (project.Name.Contains("Test", StringComparison.OrdinalIgnoreCase) ||

@@ -1,9 +1,15 @@
 ﻿namespace Clarity.Dev.NET.Analyzer.Core;
 
-public class SolutionScanner
+/// <summary>
+/// Main orchestrator for analyzing .NET solutions 🦢
+/// </summary>
+/// <param name="projectParser"></param>
+public class SolutionScanner(ProjectParser projectParser)
 {
+    private readonly ProjectParser _projectParser = projectParser;
+
     /// <summary>
-    /// Analyzes a .NET solution (.sln or .slnx) and returns comprehensive analysis results
+    /// Analyzes a .NET solution (.sln or .slnx) and returns comprehensive analysis results 🦢
     /// </summary>
     /// <param name="solutionPath"></param>
     /// <param name="cancellationToken"></param>
