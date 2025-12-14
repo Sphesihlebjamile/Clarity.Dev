@@ -171,7 +171,45 @@ public class ServiceDetector
 
     private List<ServiceInfo> DetectMinimalApis(SyntaxNode root, string filePath)
     {
-        throw new NotImplementedException($"Have not implemented the {DetectMinimalApis} function!");
+        var apis = new List<ServiceInfo>();
+
+        // Look for app.MapGet, app.MapPost, etc.
+        var invocations = root.DescendantNodes().OfType<InvocationExpressionSyntax>();
+
+        foreach (var invocation in invocations)
+        {
+            var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
+            if (memberAccess == null) continue;
+
+            var methodName = memberAccess.Name.Identifier.ValueText;
+            if (methodName.StartsWith("Map") && (methodName.Contains("Get") || methodName.Contains("Post") ||
+                methodName.Contains("Put") || methodName.Contains("Delete") || methodName.Contains("Patch")))
+            {
+                // Extract route if available
+                var route = invocation.ArgumentList.Arguments.FirstOrDefault()?.ToString() ?? "";
+                route = route.Trim('"');
+
+                // Only add one MinimalApi entry per file to avoid duplication
+                if (!apis.Any(a => a.Type == ServiceType.MinimalApi && a.FilePath == filePath))
+                {
+                    apis.Add(new ServiceInfo
+                    {
+                        Name = "Minimal API Endpoints",
+                        Type = ServiceType.MinimalApi,
+                        FilePath = filePath,
+                        Routes = new List<string> { route }
+                    });
+                }
+                else
+                {
+                    // Add route to existing entry
+                    apis.First(a => a.Type == ServiceType.MinimalApi && a.FilePath == filePath)
+                        .Routes.Add(route);
+                }
+            }
+        }
+
+        return apis;
     }
 
     /// <summary>
