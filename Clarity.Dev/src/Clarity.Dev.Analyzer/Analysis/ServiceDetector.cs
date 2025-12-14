@@ -92,7 +92,28 @@ public class ServiceDetector
 
     private List<ServiceInfo> DetectBackgroundServices(SyntaxNode root, SemanticModel semanticModel, string filePath)
     {
-        throw new NotImplementedException($"Have not implemented the {DetectBackgroundServices} function!");
+        var services = new List<ServiceInfo>();
+
+        var classDeclarations = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
+
+        foreach (var classDeclaration in classDeclarations)
+        {
+            var symbol = semanticModel.GetDeclaredSymbol(classDeclaration);
+            if (symbol == null) continue;
+
+            if (InheritsFrom((INamedTypeSymbol)symbol, "BackgroundService") 
+                || ImplementsInterface((INamedTypeSymbol)symbol, "IHostedService"))
+            {
+                services.Add(new ServiceInfo
+                {
+                    Name = symbol.Name,
+                    Type = ServiceType.BackgroundService,
+                    FilePath = filePath
+                });
+            }
+        }
+
+        return services;
     }
 
     private List<ServiceInfo> DetectSignalRHubs(SyntaxNode root, SemanticModel semanticModel, string filePath)
@@ -186,5 +207,16 @@ public class ServiceDetector
             current = current.BaseType;
         }
         return false;
+    }
+
+    /// <summary>
+    /// Determines whether a type symbol implements a specified interface by traversing all implemented interfaces 🦢
+    /// </summary>
+    /// <param name="symbol">The named type symbol to check.</param>
+    /// <param name="interfaceName">The name of the interface to search for.</param>
+    /// <returns><c>true</c> if the symbol implements the specified interface; otherwise, <c>false</c>.</returns>
+    private bool ImplementsInterface(INamedTypeSymbol symbol, string interfaceName)
+    {
+        return symbol.AllInterfaces.Any(i => i.Name == interfaceName);
     }
 }
