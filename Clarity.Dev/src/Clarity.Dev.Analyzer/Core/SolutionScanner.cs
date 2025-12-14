@@ -60,6 +60,26 @@ public class SolutionScanner(ProjectParser projectParser)
         Console.WriteLine($"Found {workspace.CurrentSolution.Projects.Count()} projects");
 
         // Step 2: Parse and analyze each project in solution in parallel
+        var projectTasks = workspace.CurrentSolution.Projects
+            .Select(async project =>
+            {
+                try
+                {
+                    return await _projectParser.ParseProjectAsync(project, manager, cancellationToken);
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine($"Error parsing project {project.Name}: {ex.Message}");
+                    return null;
+                }
+            });
+
+        var parsedProjects = await Task.WhenAll(projectTasks);
+        result.Projects = parsedProjects.Where(proj => proj is not null)
+            .Cast<SolutionModels.ProjectInfo>()
+            .ToList();
+
+        Console.Write($"Successfully parsed {result.Projects.Count} projects!");
 
         // Step 3: Detect services in each project
 
