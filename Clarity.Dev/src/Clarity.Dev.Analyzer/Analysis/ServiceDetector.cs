@@ -56,7 +56,38 @@ public class ServiceDetector
 
     private List<ServiceInfo> DetectControllers(SyntaxNode root, SemanticModel semanticModel, string filePath)
     {
-        throw new NotImplementedException($"Have not implemented the {nameof(DetectControllers)} function!");
+        var controllers = new List<ServiceInfo>();
+
+        var classDeclarations = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
+
+        foreach (var classDeclaration in classDeclarations)
+        {
+            var symbol = semanticModel.GetDeclaredSymbol(classDeclaration);
+            if (symbol == null) continue;
+
+            // Check if inherits from ControllerBase or Controller
+            var isController = InheritsFrom((INamedTypeSymbol)symbol, "ControllerBase") 
+                || InheritsFrom((INamedTypeSymbol)symbol, "Controller");
+
+            // Or has ApiController attribute
+            var hasApiControllerAttr = symbol.GetAttributes()
+                .Any(attr => attr.AttributeClass?.Name == "ApiControllerAttribute");
+
+            if (isController || hasApiControllerAttr)
+            {
+                var routes = ExtractRoutes(classDeclaration);
+
+                controllers.Add(new ServiceInfo
+                {
+                    Name = symbol.Name,
+                    Type = ServiceType.Controller,
+                    FilePath = filePath,
+                    Routes = routes
+                });
+            }
+        }
+
+        return controllers;
     }
 
     private List<ServiceInfo> DetectBackgroundServices(SyntaxNode root, SemanticModel semanticModel, string filePath)
