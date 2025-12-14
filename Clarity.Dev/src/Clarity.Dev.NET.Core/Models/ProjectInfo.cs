@@ -12,5 +12,6 @@ public class ProjectInfo
     public string OutputType { get; set; } = string.Empty; // Exe, Library, WinExe, etc.
     public List<DependencyInfo> NuGetDependencies { get; set; } = [];
     public List<string> ProjectReferences { get; set; } = [];
+    public List<ServiceInfo> DetectedServices { get; set; } = new();
     public bool IsTestProject { get; set; }
 }

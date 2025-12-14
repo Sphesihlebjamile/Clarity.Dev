@@ -87,6 +87,18 @@ public class SolutionScanner(
         Console.Write($"Successfully parsed {result.Projects.Count} projects!");
 
         // Step 3: Detect services in each project
+        foreach(var projectInfo in result.Projects)
+        {
+            var roslynProject = workspace.CurrentSolution.Projects.FirstOrDefault(proj => proj.Name == projectInfo.Name);
+            if(roslynProject is not null)
+            {
+                projectInfo.DetectedServices = await _serviceDetector.DetectServicesAsync(
+                    roslynProject,
+                    cancellationToken);
+            }
+        }
+
+        Console.WriteLine($"Detected {result.Projects.Sum(p => p.DetectedServices.Count)} services");
 
         // Step 4: Analyze service communication
 
