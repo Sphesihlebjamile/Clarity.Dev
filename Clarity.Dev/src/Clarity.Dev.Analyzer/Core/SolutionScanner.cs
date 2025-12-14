@@ -43,7 +43,7 @@ public class SolutionScanner(ProjectParser projectParser)
         {
             // Parse .slnx file manually and create workspace
             Console.WriteLine("Detexted .slnx file (XML-based solution)");
-            throw new NotImplementedException(".slnx file analysis is not yet implemented.");
+            workspace = await LoadSlnxSolutionAsync(solutionPath);
         }
         else if(SolutionExtensionTypeHelper.IsSlnFile(extension))
         {
@@ -72,5 +72,62 @@ public class SolutionScanner(ProjectParser projectParser)
         stopwatch.Stop();
 
         return result;
+    }
+
+    /// <summary>
+    /// Loads a .slnx file and creates a Roslyn workspace 🦢
+    /// </summary>
+    /// <param name="slnxPath">Path to .slnx file</param>
+    /// <returns></returns>
+    private async Task<AdhocWorkspace> LoadSlnxSolutionAsync(string slnxPath)
+    {
+        var workspace = new AdhocWorkspace();
+        var projectPaths = SlnxParser.ParseSlnx(slnxPath);
+
+        foreach(var projectPath in projectPaths)
+        {
+            try
+            {
+                var projectName = Path.GetFileNameWithoutExtension(projectPath);
+                var projectId = ProjectId.CreateNewId(projectName);
+
+                // Load project file to get language (C#, F#, VB)
+                var languageName = GetLanguageFromProjectFile(projectPath);
+
+                var projectInfo = Microsoft.CodeAnalysis.ProjectInfo.Create(
+                    projectId,
+                    VersionStamp.Default,
+                    projectName,
+                    projectName,
+                    languageName,
+                    filePath: projectPath
+                    );
+
+                workspace.AddProject(projectInfo);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Warning: Could not load project{projectPath}: {ex.Message}");
+            }
+        }
+
+        return await Task.FromResult(workspace);
+    }
+
+    /// <summary>
+    /// Determines the language from a project file extension 🦢
+    /// </summary>
+    /// <param name="projectPath"></param>
+    /// <returns></returns>
+    private string GetLanguageFromProjectFile(string projectPath)
+    {
+        var extension = Path.GetExtension(projectPath).ToLowerInvariant();
+        return extension switch
+        {
+            var e when ProjectExtensionTypeHandler.IsCsproj(e) => LanguageNames.CSharp,
+            var e when ProjectExtensionTypeHandler.IsFsproj(e) => LanguageNames.FSharp,
+            var e when ProjectExtensionTypeHandler.IsVbproj(e) => LanguageNames.VisualBasic,
+            _ => LanguageNames.CSharp
+        };
     }
 }

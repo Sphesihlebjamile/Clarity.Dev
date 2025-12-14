@@ -29,7 +29,8 @@ static async Task<int> AnalyzeSolution(
             return 1;
         }
 
-        var scanner = new SolutionScanner();
+        ProjectParser _projectParser = new();
+        var scanner = new SolutionScanner(_projectParser);
         var result = await scanner.AnalyzeSolutionAsync(solutionPath);
 
         Console.WriteLine();
