@@ -1,6 +1,4 @@
-﻿using Clarity.Dev.NET.Analyzer.Analysis;
-
-namespace Clarity.Dev.NET.Analyzer.Core;
+﻿namespace Clarity.Dev.NET.Analyzer.Core;
 
 /// <summary>
 /// Main orchestrator for analyzing .NET solutions 🦢

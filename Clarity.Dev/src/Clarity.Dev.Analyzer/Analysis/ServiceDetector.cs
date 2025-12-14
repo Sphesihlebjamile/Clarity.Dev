@@ -1,12 +1,20 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-namespace Clarity.Dev.NET.Analyzer.Analysis;
+﻿namespace Clarity.Dev.NET.Analyzer.Analysis;
 
 /// <summary>
 /// Detects various types of services in a .NET project 🦢
 /// </summary>
 public class ServiceDetector
 {
+    /// <summary>
+    /// Asynchronously detects and returns information about services defined within the specified project, including
+    /// controllers, background services, SignalR hubs, gRPC services, and minimal APIs 🦢
+    /// </summary>
+    /// <remarks>This method scans all documents in the provided project to identify various types of services
+    /// commonly used in .NET applications. The operation can be cancelled by passing a cancellation token.</remarks>
+    /// <param name="project">The project to analyze for service definitions. Must not be null.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A list of ServiceInfo objects representing the detected services in the project. The list is empty if no
+    /// services are found.</returns>
     public async Task<List<ServiceInfo>> DetectServicesAsync(
         Project project,
         CancellationToken cancellationToken = default)
@@ -54,6 +62,21 @@ public class ServiceDetector
         return services;
     }
 
+    /// <summary>
+    /// Identifies controller classes within the specified syntax tree and returns information about each detected
+    /// controller 🦢
+    /// </summary>
+    /// <remarks>
+    /// A class is considered a controller if it inherits from ControllerBase or Controller, or is
+    /// decorated with the ApiController attribute.
+    /// </remarks>
+    /// <param name="root">The root syntax node of the C# source file to analyze for controller classes.</param>
+    /// <param name="semanticModel">The semantic model used to provide symbol information for the syntax tree.</param>
+    /// <param name="filePath">The file path of the source file being analyzed. Used to associate detected controllers with their source file.</param>
+    /// <returns>
+    /// A list of ServiceInfo objects representing each controller class found in the syntax tree. The list is empty if
+    /// no controllers are detected.
+    /// </returns>
     private List<ServiceInfo> DetectControllers(SyntaxNode root, SemanticModel semanticModel, string filePath)
     {
         var controllers = new List<ServiceInfo>();
@@ -90,6 +113,24 @@ public class ServiceDetector
         return controllers;
     }
 
+    /// <summary>
+    /// Identifies classes in the specified syntax tree that represent background services by inheriting from
+    /// BackgroundService or implementing IHostedService.
+    /// </summary>
+    /// <remarks>
+    /// This method is typically used to analyze C# source files for ASP.NET Core background
+    /// services, such as those based on BackgroundService or IHostedService. Only top-level class declarations are
+    /// considered.
+    /// </remarks>
+    /// <param name="root">The root syntax node of the C# syntax tree to analyze.</param>
+    /// <param name="semanticModel">The semantic model used to resolve type information for the syntax tree.</param>
+    /// <param name="filePath">
+    /// The file path associated with the syntax tree being analyzed. Used to record the source location of detected services.
+    /// </param>
+    /// <returns>
+    /// A list of ServiceInfo objects describing each detected background service. The list is empty if no matching
+    /// services are found.
+    /// </returns>
     private List<ServiceInfo> DetectBackgroundServices(SyntaxNode root, SemanticModel semanticModel, string filePath)
     {
         var services = new List<ServiceInfo>();
@@ -116,6 +157,21 @@ public class ServiceDetector
         return services;
     }
 
+    /// <summary>
+    /// Identifies all classes in the specified syntax tree that inherit from SignalR's Hub class 🦢
+    /// </summary>
+    /// <remarks>
+    /// This method examines all class declarations in the provided syntax tree and determines
+    /// whether each class inherits from the SignalR Hub base class. Only direct or indirect subclasses of Hub are
+    /// included in the result.
+    /// </remarks>
+    /// <param name="root">The root syntax node of the C# syntax tree to analyze.</param>
+    /// <param name="semanticModel">The semantic model used to resolve type information for the syntax tree.</param>
+    /// <param name="filePath">The file path associated with the syntax tree being analyzed. Used to populate the returned service information.</param>
+    /// <returns>
+    /// A list of ServiceInfo objects representing SignalR hub classes found in the syntax tree. The list is empty if no
+    /// such classes are detected.
+    /// </returns>
     private List<ServiceInfo> DetectSignalRHubs(SyntaxNode root, SemanticModel semanticModel, string filePath)
     {
         var hubs = new List<ServiceInfo>();
@@ -141,6 +197,21 @@ public class ServiceDetector
         return hubs;
     }
 
+    /// <summary>
+    /// Identifies gRPC service classes within the specified syntax tree 🦢
+    /// </summary>
+    /// <remarks>
+    /// A class is considered a gRPC service if it inherits from a base class whose name ends with
+    /// "Base" and whose namespace contains "Grpc". This method does not validate service implementation details beyond
+    /// these inheritance patterns.
+    /// </remarks>
+    /// <param name="root">The root syntax node of the C# source file to analyze.</param>
+    /// <param name="semanticModel">The semantic model used to resolve type information for the syntax tree.</param>
+    /// <param name="filePath">The file path of the source file being analyzed. Used to associate detected services with their source location.</param>
+    /// <returns>
+    /// A list of ServiceInfo objects representing the gRPC service classes found in the syntax tree. The list is empty
+    /// if no gRPC services are detected.
+    /// </returns>
     private List<ServiceInfo> DetectGrpcServices(SyntaxNode root, SemanticModel semanticModel, string filePath)
     {
         var services = new List<ServiceInfo>();
@@ -169,6 +240,20 @@ public class ServiceDetector
         return services;
     }
 
+    /// <summary>
+    /// Detects Minimal API endpoint definitions within the specified syntax tree 🦢
+    /// </summary>
+    /// <remarks>
+    /// This method identifies Minimal API endpoints by searching for method invocations such as
+    /// app.MapGet, app.MapPost, app.MapPut, app.MapDelete, and app.MapPatch. Each returned <see cref="ServiceInfo"/>
+    /// groups endpoints by file to avoid duplication.
+    /// </remarks>
+    /// <param name="root">The root <see cref="SyntaxNode"/> of the syntax tree to analyze for Minimal API endpoints.</param>
+    /// <param name="filePath">The file path associated with the syntax tree. Used to group detected endpoints by file.</param>
+    /// <returns>
+    /// A list of <see cref="ServiceInfo"/> objects representing Minimal API endpoints found in the syntax tree. The
+    /// list is empty if no endpoints are detected.
+    /// </returns>
     private List<ServiceInfo> DetectMinimalApis(SyntaxNode root, string filePath)
     {
         var apis = new List<ServiceInfo>();
