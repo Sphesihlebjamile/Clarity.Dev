@@ -144,7 +144,7 @@ public class ProjectParser
     }
 
     /// <summary>
-    /// Determines if a project is a test project based on naming and dependencies
+    /// Determines if a project is a test project based on naming and dependencies 🦢
     /// </summary>
     /// <param name="project"></param>
     /// <returns></returns>
