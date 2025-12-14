@@ -143,7 +143,30 @@ public class ServiceDetector
 
     private List<ServiceInfo> DetectGrpcServices(SyntaxNode root, SemanticModel semanticModel, string filePath)
     {
-        throw new NotImplementedException($"Have not implemented the {DetectGrpcServices} function!");
+        var services = new List<ServiceInfo>();
+
+        var classDeclarations = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
+
+        foreach (var classDecl in classDeclarations)
+        {
+            var symbol = semanticModel.GetDeclaredSymbol(classDecl);
+            if (symbol == null) continue;
+
+            // gRPC services typically inherit from generated base classes ending in "Base"
+            if (((INamedTypeSymbol)symbol).BaseType?.Name.EndsWith("Base") == true &&
+                ((INamedTypeSymbol)symbol).BaseType?.ContainingNamespace != null &&
+                ((INamedTypeSymbol)symbol).BaseType?.ContainingNamespace?.ToString()?.Contains("Grpc") == true)
+            {
+                services.Add(new ServiceInfo
+                {
+                    Name = symbol.Name,
+                    Type = ServiceType.GrpcService,
+                    FilePath = filePath
+                });
+            }
+        }
+
+        return services;
     }
 
     private List<ServiceInfo> DetectMinimalApis(SyntaxNode root, string filePath)
