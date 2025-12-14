@@ -82,7 +82,7 @@ public class SolutionScanner(
             .Cast<SolutionModels.ProjectInfo>()
             .ToList();
 
-        Console.Write($"Successfully parsed {result.Projects.Count} projects!");
+        Console.WriteLine($"Successfully parsed {result.Projects.Count} projects!");
 
         // Step 3: Detect services in each project
         foreach(var projectInfo in result.Projects)
