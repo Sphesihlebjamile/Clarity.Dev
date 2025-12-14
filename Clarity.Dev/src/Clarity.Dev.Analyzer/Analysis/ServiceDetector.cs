@@ -118,7 +118,27 @@ public class ServiceDetector
 
     private List<ServiceInfo> DetectSignalRHubs(SyntaxNode root, SemanticModel semanticModel, string filePath)
     {
-        throw new NotImplementedException($"Have not implemented the {DetectSignalRHubs} function!");
+        var hubs = new List<ServiceInfo>();
+
+        var classDeclarations = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
+
+        foreach (var classDecleration in classDeclarations)
+        {
+            var symbol = semanticModel.GetDeclaredSymbol(classDecleration);
+            if (symbol == null) continue;
+
+            if (InheritsFrom((INamedTypeSymbol)symbol, "Hub"))
+            {
+                hubs.Add(new ServiceInfo
+                {
+                    Name = symbol.Name,
+                    Type = ServiceType.SignalRHub,
+                    FilePath = filePath
+                });
+            }
+        }
+
+        return hubs;
     }
 
     private List<ServiceInfo> DetectGrpcServices(SyntaxNode root, SemanticModel semanticModel, string filePath)
@@ -132,15 +152,15 @@ public class ServiceDetector
     }
 
     /// <summary>
-    /// Extracts all HTTP routes from a controller class by combining class-level and method-level route attributes. 🦢
+    /// Extracts all HTTP routes from a controller classDecleration by combining classDecleration-level and method-level route attributes. 🦢
     /// </summary>
-    /// <param name="classDeclarationSyntax">The class declaration syntax to extract routes from.</param>
+    /// <param name="classDeclarationSyntax">The classDecleration declaration syntax to extract routes from.</param>
     /// <returns></returns>
     private List<string> ExtractRoutes(ClassDeclarationSyntax classDeclarationSyntax)
     {
         var routes = new List<string>();
 
-        // Get Route attribute on class
+        // Get Route attribute on classDecleration
         var classRouteAttribute = classDeclarationSyntax.AttributeLists
             .SelectMany(al => al.Attributes)
             .FirstOrDefault(attr => attr.Name.ToString().Contains("Route"));
