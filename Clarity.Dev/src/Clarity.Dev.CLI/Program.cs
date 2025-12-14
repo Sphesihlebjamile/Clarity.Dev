@@ -1,4 +1,5 @@
 ﻿
+using Clarity.Dev.NET.Analyzer.Analysis;
 using Clarity.Dev.NET.Analyzer.Core;
 
 DisplayIntro();
@@ -30,7 +31,8 @@ static async Task<int> AnalyzeSolution(
         }
 
         ProjectParser _projectParser = new();
-        var scanner = new SolutionScanner(_projectParser);
+        ServiceDetector _serviceDetector = new ServiceDetector();
+        var scanner = new SolutionScanner(_projectParser, _serviceDetector);
         var result = await scanner.AnalyzeSolutionAsync(solutionPath);
 
         Console.WriteLine();

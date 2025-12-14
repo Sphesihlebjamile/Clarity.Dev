@@ -1,12 +1,17 @@
-﻿namespace Clarity.Dev.NET.Analyzer.Core;
+﻿using Clarity.Dev.NET.Analyzer.Analysis;
+
+namespace Clarity.Dev.NET.Analyzer.Core;
 
 /// <summary>
 /// Main orchestrator for analyzing .NET solutions 🦢
 /// </summary>
 /// <param name="projectParser"></param>
-public class SolutionScanner(ProjectParser projectParser)
+public class SolutionScanner(
+    ProjectParser projectParser,
+    ServiceDetector serviceDetector)
 {
     private readonly ProjectParser _projectParser = projectParser;
+    private readonly ServiceDetector _serviceDetector = serviceDetector;
 
     /// <summary>
     /// Analyzes a .NET solution (.sln or .slnx) and returns comprehensive analysis results 🦢
