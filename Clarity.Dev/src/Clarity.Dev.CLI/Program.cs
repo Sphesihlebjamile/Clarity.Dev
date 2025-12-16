@@ -32,7 +32,8 @@ static async Task<int> AnalyzeSolution(
 
         ProjectParser _projectParser = new();
         ServiceDetector _serviceDetector = new ServiceDetector();
-        var scanner = new SolutionScanner(_projectParser, _serviceDetector);
+        CommunicationAnalyzer _communicationAnalyzer = new CommunicationAnalyzer();
+        var scanner = new SolutionScanner(_projectParser, _serviceDetector, _communicationAnalyzer);
         var result = await scanner.AnalyzeSolutionAsync(solutionPath);
 
         Console.WriteLine();
