@@ -64,6 +64,40 @@ public class CommunicationAnalyzer
 
     private List<CommunicationPath> DetectHttpClients(SyntaxNode root, SemanticModel semanticModel, string projectName)
     {
-        throw new NotImplementedException($"Have not implemented the {nameof(DetectHttpClients)} function");
+        List<CommunicationPath> communicationPaths = [];
+
+        // Look for HttpClient instantiation or usage
+        var objectCreations = root.DescendantNodes().OfType<ObjectCreationExpressionSyntax>();
+
+        foreach(var creation in objectCreations)
+        {
+            var typeInfo = semanticModel.GetTypeInfo(creation);
+            if(typeInfo.Type?.Name == "HttpClient")
+            {
+                communicationPaths.Add(new CommunicationPath
+                {
+                    SourceProject = projectName,
+                    TargetService = "External HTTP Service",
+                    Type = CommunicationType.HttpClient,
+                });
+                break; // Only record once per project
+            }
+        }
+
+        // Also loog for IHttpClientFactory usage
+        var identifier = root.DescendantNodes().OfType<IdentifierNameSyntax>()
+            .Where(ins => ins.Identifier.ValueText.Contains("HttpClient"));
+
+        if (identifier.Any())
+        {
+            communicationPaths.Add(new CommunicationPath
+            {
+                SourceProject = projectName,
+                TargetService = "External HTTP Service",
+                Type = CommunicationType.HttpClient,
+            });
+        }
+
+        return communicationPaths;
     }
 }
