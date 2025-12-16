@@ -6,6 +6,22 @@ namespace Clarity.Dev.NET.Analyzer.Analysis;
 /// </summary>
 public class CommunicationAnalyzer
 {
+    /// <summary>
+    /// Analyzes the specified solution to identify communication paths such as HTTP, gRPC, message queue, and database
+    /// interactions across its projects 🦢
+    /// </summary>
+    /// <remarks>
+    /// The analysis inspects each project's documents to detect various forms of communication,
+    /// including HTTP client usage, gRPC clients, message queues, and database access. The operation can be cancelled
+    /// by providing a cancellation token.
+    /// </remarks>
+    /// <param name="solution">The solution to analyze for inter-project and external communication patterns.</param>
+    /// <param name="projects">A list of project information objects representing the projects to consider during analysis.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the analysis operation.</param>
+    /// <returns>
+    /// A list of communication paths detected within the solution. The list is empty if no communication paths are
+    /// found.
+    /// </returns>
     public async Task<List<CommunicationPath>> AnalyzeCommunicationAsync(
         Solution solution,
         List<SolutionModels.ProjectInfo> projects,
@@ -47,9 +63,40 @@ public class CommunicationAnalyzer
         return communications;
     }
 
-    private List<CommunicationPath> DetectGrpcClients(SyntaxNode root, SemanticModel semanticModel, string name)
+    /// <summary>
+    /// Detects gRPC client usage within the specified syntax tree and returns communication paths representing gRPC
+    /// client interactions 🦢
+    /// </summary>
+    /// <remarks>
+    /// This method identifies gRPC client usage by searching for identifier names containing
+    /// 'GrpcClient' or 'GrpcChannel'. It does not perform deep semantic analysis and may not detect all forms of gRPC
+    /// communication.
+    /// </remarks>
+    /// <param name="root">The root syntax node of the C# source code to analyze for gRPC client references.</param>
+    /// <param name="semanticModel">The semantic model associated with the syntax tree, used for symbol analysis during detection.</param>
+    /// <param name="projectName">The name of the project being analyzed. Used to identify the source of detected communication paths.</param>
+    /// <returns>
+    /// A list of communication paths indicating gRPC client usage found in the analyzed code. The list is empty if no
+    /// gRPC clients are detected.
+    /// </returns>
+    private List<CommunicationPath> DetectGrpcClients(SyntaxNode root, SemanticModel semanticModel, string projectName)
     {
-        throw new NotImplementedException($"Have not implemented the {nameof(DetectGrpcClients)} function");
+        List<CommunicationPath> communicationPaths = [];
+        var identifiers = root.DescendantNodes().OfType<IdentifierNameSyntax>()
+            .Where(ins => ins.Identifier.ValueText.Contains("GrpcClient") ||
+                ins.Identifier.ValueText.Contains("GrpcChannel"));
+
+        if (identifiers.Any())
+        {
+            communicationPaths.Add(new CommunicationPath
+            {
+                SourceProject = projectName,
+                TargetService = "gRPC Service",
+                Type = CommunicationType.GrpcClient
+            });
+        }
+
+        return communicationPaths;
     }
 
     /// <summary>
