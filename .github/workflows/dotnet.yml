@@ -5,7 +5,8 @@ name: .NET
 
 on:
   push:
-    branches: ["main", "func/communication-analyzer"]
+    branches:
+      ["main", "func/communication-analyzer", "feat/basic-solution-scanner"]
   pull_request:
     branches: ["main"]
 
