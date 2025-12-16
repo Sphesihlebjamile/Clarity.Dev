@@ -52,9 +52,61 @@ public class CommunicationAnalyzer
         throw new NotImplementedException($"Have not implemented the {nameof(DetectGrpcClients)} function");
     }
 
-    private List<CommunicationPath> DetectMessageQueues(SyntaxNode root, SemanticModel semanticModel, string name)
+    /// <summary>
+    /// Detects message queue technologies referenced within the specified syntax tree and returns the corresponding
+    /// communication paths 🦢
+    /// </summary>
+    /// <remarks>
+    /// This method identifies references to common message queue technologies such as RabbitMQ,
+    /// Azure Service Bus, and Kafka by analyzing identifier names in the provided syntax tree. Only direct references
+    /// based on identifier text are detected; indirect or obfuscated usages may not be identified.
+    /// </remarks>
+    /// <param name="root">The root syntax node of the code to analyze for message queue references.</param>
+    /// <param name="semanticModel">The semantic model associated with the syntax tree. Used to provide additional context for analysis.</param>
+    /// <param name="projectName">The name of the project being analyzed. Used as the source in detected communication paths.</param>
+    /// <returns>A list of communication paths representing detected message queue technologies. The list is empty if no message
+    /// queues are found.</returns>
+    private List<CommunicationPath> DetectMessageQueues(SyntaxNode root, SemanticModel semanticModel, string projectName)
     {
-        throw new NotImplementedException($"Have not implemented the {nameof(DetectMessageQueues)} function");
+        List<CommunicationPath> communicationPaths = [];
+        var identifiers = root.DescendantNodes().OfType<IdentifierNameSyntax>();
+
+        // Rabbit MQ
+        if(identifiers.Any(ins => ins.Identifier.ValueText.Contains("RabbitMQ") ||
+            ins.Identifier.ValueText.Contains("ServiceBus") ||
+            ins.ToString().Contains("RabbitMQ")))
+        {
+            communicationPaths.Add(new CommunicationPath
+            {
+                SourceProject = projectName,
+                TargetService = "RabbitMQ",
+                Type = CommunicationType.MessageQueue
+            });
+        }
+
+        // Azure Service Bus
+        if(identifiers.Any(ins => ins.Identifier.ValueText.Contains("ServiceBus")))
+        {
+            communicationPaths.Add(new CommunicationPath
+            {
+                SourceProject = projectName,
+                TargetService = "Azure Service Bus",
+                Type = CommunicationType.MessageQueue
+            });
+        }
+
+        // Kafka
+        if(identifiers.Any(ins => ins.Identifier.ValueText.Contains("Kafka")))
+        {
+            communicationPaths.Add(new CommunicationPath
+            {
+                SourceProject = projectName,
+                TargetService = "Kafka",
+                Type = CommunicationType.MessageQueue
+            });
+        }
+
+        return communicationPaths;
     }
 
     /// <summary>
