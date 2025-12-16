@@ -6,10 +6,12 @@
 /// <param name="projectParser"></param>
 public class SolutionScanner(
     ProjectParser projectParser,
-    ServiceDetector serviceDetector)
+    ServiceDetector serviceDetector,
+    CommunicationAnalyzer communicationAnalyzer)
 {
     private readonly ProjectParser _projectParser = projectParser;
     private readonly ServiceDetector _serviceDetector = serviceDetector;
+    private readonly CommunicationAnalyzer _communicationAnalyzer = communicationAnalyzer;
 
     /// <summary>
     /// Analyzes a .NET solution (.sln or .slnx) and returns comprehensive analysis results 🦢
@@ -99,6 +101,10 @@ public class SolutionScanner(
         Console.WriteLine($"Detected {result.Projects.Sum(p => p.DetectedServices.Count)} services");
 
         // Step 4: Analyze service communication
+        result.ServiceCommunications = await _communicationAnalyzer.AnalyzeCommunicationAsync(
+            workspace.CurrentSolution,
+            result.Projects,
+            cancellationToken);
 
         // Step 5: Detext circular dependencies
 
