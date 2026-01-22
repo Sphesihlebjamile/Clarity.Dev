@@ -1,0 +1,5 @@
+/* Visual Studio Settings File */
+{
+  "debugging.general.enableAspNetJavaScriptDebuggingOnLaunch": false,
+  "debugging.hotReload.applyOnFileSave": true
+}
