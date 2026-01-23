@@ -1,61 +1,18 @@
 ﻿
-using Clarity.Dev.NET.Analyzer.Analysis;
-using Clarity.Dev.NET.Analyzer.Core;
 
-DisplayIntro();
+Console.WriteLine("╔════════════════════════════════════════╗");
+Console.WriteLine("║   Clarity.Dev: Solution Analyzer       ║");
+Console.WriteLine("╚════════════════════════════════════════╝");
+Console.WriteLine();
 
-Console.WriteLine("The project works!!");
+#if DEBUG
+    var config = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .Build();
+    args = [config["DefaultTestProject"] ?? string.Empty];
+#endif
 
-await AnalyzeSolution(args[0]);
+await SolutionAnalyzer.AnalyzeSolution(args[0]);
 
 
-static void DisplayIntro()
-{
-    Console.WriteLine("╔════════════════════════════════════════╗");
-    Console.WriteLine("║   Onboard.NET Solution Analyzer        ║");
-    Console.WriteLine("╚════════════════════════════════════════╝");
-    Console.WriteLine();
-}
-
-static async Task<int> AnalyzeSolution(
-    string solutionPath)
-{
-    try
-    {
-        if (!File.Exists(solutionPath))
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"❌ Error: Solution file not found: {solutionPath}");
-            Console.ResetColor();
-            return 1;
-        }
-
-        ProjectParser _projectParser = new();
-        ServiceDetector _serviceDetector = new ServiceDetector();
-        CommunicationAnalyzer _communicationAnalyzer = new CommunicationAnalyzer();
-        var scanner = new SolutionScanner(_projectParser, _serviceDetector, _communicationAnalyzer);
-        var result = await scanner.AnalyzeSolutionAsync(solutionPath);
-
-        Console.WriteLine();
-        Console.WriteLine("═══════════════════════════════════════");
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"✓ Analysis complete!");
-        Console.ResetColor();
-        //Console.WriteLine($"  • Projects: {result.Statistics.TotalProjects}");
-        //Console.WriteLine($"  • NuGet Packages: {result.Statistics.TotalNuGetPackages}");
-        //Console.WriteLine($"  • Services: {result.Statistics.TotalServices}");
-        //Console.WriteLine($"  • Duration: {result.Statistics.AnalysisDuration.TotalSeconds:F2}s");
-
-        return 0;
-    }
-    catch(Exception ex)
-    {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"❌ Error: {ex.Message}");
-        Console.WriteLine();
-        Console.WriteLine("Stack Trace:");
-        Console.WriteLine(ex.StackTrace);
-        Console.ResetColor();
-        return 1;
-    }
-}
