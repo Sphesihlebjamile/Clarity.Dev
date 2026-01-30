@@ -60,7 +60,7 @@ dotnet run --project /Clarity.Dev/src/Clarity.Dev.CLI/ (<YourSolution.sln/.slnx>
 - [x] Dependency graph building
 - [x] Service detection
 - [x] Communication analysis
-- [ ] Circular dependency detection
+- [x] Circular dependency detection
 - [ ] HTML report generation
 - [ ] JSON export
 
