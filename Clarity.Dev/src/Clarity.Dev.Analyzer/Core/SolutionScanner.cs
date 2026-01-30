@@ -7,11 +7,13 @@
 public class SolutionScanner(
     ProjectParser projectParser,
     ServiceDetector serviceDetector,
-    CommunicationAnalyzer communicationAnalyzer)
+    CommunicationAnalyzer communicationAnalyzer,
+    CircularDependencyDetector circularDependencyDetector)
 {
     private readonly ProjectParser _projectParser = projectParser;
     private readonly ServiceDetector _serviceDetector = serviceDetector;
     private readonly CommunicationAnalyzer _communicationAnalyzer = communicationAnalyzer;
+    private readonly CircularDependencyDetector _circularDependencyDetector = circularDependencyDetector;
 
     /// <summary>
     /// Analyzes a .NET solution (.sln or .slnx) and returns comprehensive analysis results 🦢
@@ -106,7 +108,13 @@ public class SolutionScanner(
             result.Projects,
             cancellationToken);
 
-        // Step 5: Detext circular dependencies
+        // Step 5: Detect circular dependencies
+        result.CircularDependencies = _circularDependencyDetector.DetectCircularDependencies(result.Projects);
+
+        if (result.CircularDependencies.Any())
+        {
+            Console.WriteLine($"⚠️  WARNING: Found {result.CircularDependencies.Count} circular dependencies!");
+        }
 
         // Step 6: Calculate statistics
 
