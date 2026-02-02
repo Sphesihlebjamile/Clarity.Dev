@@ -116,9 +116,18 @@ public class SolutionScanner(
             Console.WriteLine($"⚠️  WARNING: Found {result.CircularDependencies.Count} circular dependencies!");
         }
 
-        // Step 6: Calculate statistics
-
+        // Step 6: Calculate 
         stopwatch.Stop();
+
+        result.Statistics = new SolutionModels.AnalysisStatistics
+        {
+            TotalProjects = result.Projects.Count,
+            TotalNuGetPackages = result.Projects.Sum(project => project.NuGetDependencies.Count),
+            TotalProjectReferences = result.Projects.Sum(project => project.ProjectReferences.Count),
+            TotalServices = result.Projects.Sum(project => project.DetectedServices.Count),
+            CircularDependencyCount = result.CircularDependencies.Count,
+            AnalysisDuration = stopwatch.Elapsed
+        };
 
         return result;
     }

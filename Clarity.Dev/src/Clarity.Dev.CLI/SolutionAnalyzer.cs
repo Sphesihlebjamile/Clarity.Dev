@@ -26,10 +26,20 @@ internal static class SolutionAnalyzer
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"✓ Analysis complete!");
             Console.ResetColor();
-            //Console.WriteLine($"  • Projects: {result.Statistics.TotalProjects}");
-            //Console.WriteLine($"  • NuGet Packages: {result.Statistics.TotalNuGetPackages}");
-            //Console.WriteLine($"  • Services: {result.Statistics.TotalServices}");
-            //Console.WriteLine($"  • Duration: {result.Statistics.AnalysisDuration.TotalSeconds:F2}s");
+            Console.WriteLine($"  • Projects: {result.Statistics.TotalProjects}");
+            Console.WriteLine($"  • NuGet Packages: {result.Statistics.TotalNuGetPackages}");
+            Console.WriteLine($"  • Services: {result.Statistics.TotalServices}");
+            Console.WriteLine($"  • Duration: {result.Statistics.AnalysisDuration.TotalSeconds:F2}s");
+
+            if (result.CircularDependencies.Any())
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"  ⚠️  Circular Dependencies: {result.CircularDependencies.Count}");
+                Console.ResetColor();
+            }
+
+            Console.WriteLine("═══════════════════════════════════════");
+            Console.WriteLine();
 
             return 0;
         }
