@@ -52,13 +52,12 @@ internal static class SolutionAnalyzer
 
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 string htmlRelativePath = Path.GetRelativePath(Directory.GetCurrentDirectory(), generatedHtmlPath);
-                Console.WriteLine($"📄 HTML report generated at: {htmlRelativePath}");
+                Console.WriteLine($"HTML report generated at: {htmlRelativePath}");
                 Console.ResetColor();
             }
 
-            Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("🔧 Done!");
+            Console.WriteLine("Done!");
             Console.ResetColor();
             return 0;
         }
