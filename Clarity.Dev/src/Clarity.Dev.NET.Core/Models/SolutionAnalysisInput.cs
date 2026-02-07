@@ -1,6 +1,6 @@
-﻿namespace Clarity.Dev.CLI.Constants;
+﻿namespace Clarity.Dev.NET.Core.Models;
 
-internal class SolutionAnalysisInput
+public class SolutionAnalysisInput
 {
     public string SolutionPath { get; set; }
     public string OutputFormat { get; set; }

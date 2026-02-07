@@ -1,10 +1,10 @@
-﻿namespace Clarity.Dev.CLI.Constants;
+﻿namespace Clarity.Dev.NET.Core.Models;
 
 /// <summary>
 /// Provides static helper methods for determining whether a specified argument matches predefined command-line options
 /// related to <see cref="SolutionCommandConstants"/>.
 /// </summary>
-internal static class SolutionCommandConstantsHelper
+public static class SolutionCommandConstantsHelper
 {
     /// <summary>
     /// Determines whether the specified argument matches the predefined path option, ignoring case.

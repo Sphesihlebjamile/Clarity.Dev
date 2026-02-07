@@ -1,13 +1,13 @@
-﻿namespace Clarity.Dev.CLI.Constants;
+﻿namespace Clarity.Dev.NET.Core.Models.Enums;
 
-internal enum OutputFormatTypes
+public enum OutputFormatTypes
 {
     html,
     json,
     both
 }
 
-internal static class OutputFormatTypesHelper
+public static class OutputFormatTypesHelper
 {
     public static bool TryParse(string value, out OutputFormatTypes result)
     {
