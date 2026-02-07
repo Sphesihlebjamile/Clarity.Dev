@@ -1,18 +1,18 @@
 ﻿
 
-Console.WriteLine("╔════════════════════════════════════════╗");
-Console.WriteLine("║   Clarity.Dev: Solution Analyzer       ║");
-Console.WriteLine("╚════════════════════════════════════════╝");
-Console.WriteLine();
+try
+{
+    Console.WriteLine("==========================================");
+    Console.WriteLine("|   Clarity.Dev: Solution Analyzer       |");
+    Console.WriteLine("==========================================");
+    Console.WriteLine();
 
-#if DEBUG
-    var config = new ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .Build();
-    args = [config["DefaultTestProject"] ?? string.Empty];
-#endif
-
-await SolutionAnalyzer.AnalyzeSolution(args[0]);
-
-
+    var solutionAnalysisInput = SolutionAnalyzer.GetOutputCommands(args);
+    await SolutionAnalyzer.AnalyzeSolution(solutionAnalysisInput);
+}
+catch(Exception e)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine(e.Message);
+    Console.WriteLine("Ending program with error.");
+}
