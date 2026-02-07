@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Clarity.Dev.Reports\Clarity.Dev.Reports.csproj" />
     <ProjectReference Include="..\Clarity.Dev.Analyzer\Clarity.Dev.NET.Analyzer.csproj" />
   </ItemGroup>
 

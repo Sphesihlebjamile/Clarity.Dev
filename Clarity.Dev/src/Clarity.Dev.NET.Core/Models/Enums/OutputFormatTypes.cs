@@ -18,4 +18,19 @@ public static class OutputFormatTypesHelper
     {
         return TryParse(value, out _);
     }
+
+    public static bool IsHtmlFormat(string value)
+    {
+        return TryParse(value, out var result) && result == OutputFormatTypes.html;
+    }
+
+    public static bool IsJsonFormat(string value)
+    {
+        return TryParse(value, out var result) && result == OutputFormatTypes.json;
+    }
+
+    public static bool IsBothFormat(string value)
+    {
+        return TryParse(value, out var result) && result == OutputFormatTypes.both;
+    }
 }

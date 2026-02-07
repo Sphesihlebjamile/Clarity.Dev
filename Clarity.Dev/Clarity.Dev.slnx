@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="Clarity.Dev.Reports/Clarity.Dev.Reports.csproj" Id="50b637b2-48f2-4f88-879b-52b7c5ffa0f5" />
     <Project Path="src/Clarity.Dev.CLI/Clarity.Dev.CLI.csproj" Id="dadfd712-1c14-41de-bdc9-2f8d1a360273" />
   </Folder>
   <Folder Name="/src/NET/">

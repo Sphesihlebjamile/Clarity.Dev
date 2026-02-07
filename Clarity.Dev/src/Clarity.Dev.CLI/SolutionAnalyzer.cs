@@ -41,6 +41,25 @@ internal static class SolutionAnalyzer
             Console.WriteLine("=======================================");
             Console.WriteLine();
 
+            if(OutputFormatTypesHelper.IsHtmlFormat(solutionAnalysisInput.OutputFormat) ||
+                OutputFormatTypesHelper.IsBothFormat(solutionAnalysisInput.OutputFormat))
+            {
+                HtmlReportGenerator htmlReportGenerator = new();
+                var htmlPath = solutionAnalysisInput.OutputPath.EndsWith(".html")
+                    ? solutionAnalysisInput.OutputPath
+                    : Path.ChangeExtension(solutionAnalysisInput.OutputPath, ".html");
+                var generatedHtmlPath = htmlReportGenerator.GenerateReport(result, htmlPath);
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                string htmlRelativePath = Path.GetRelativePath(Directory.GetCurrentDirectory(), generatedHtmlPath);
+                Console.WriteLine($"📄 HTML report generated at: {htmlRelativePath}");
+                Console.ResetColor();
+            }
+
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("🔧 Done!");
+            Console.ResetColor();
             return 0;
         }
         catch (Exception ex)
