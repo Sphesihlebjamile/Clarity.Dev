@@ -25,7 +25,20 @@ public class HtmlReportGenerator
 
         // Content container
         htmlBuilder.AppendLine("    <div class='container'>");
-        htmlBuilder.AppendLine("        <h1>Hello World!</h1>");
+        htmlBuilder.AppendLine($"        <h1>{result.SolutionName}</h1>");
+        htmlBuilder.AppendLine($"        <p class='metadata'>Analysis Report | Generated on {result.AnalyzedAt:yyyy-MM-dd HH:mm:ss} UTC</p>");
+
+        // Summary Statistics
+        htmlBuilder.AppendLine("        <div class='summary-card'>");
+        htmlBuilder.AppendLine("            <h2>Summary Statistics</h2>");
+        htmlBuilder.AppendLine("            <div class='stats-grid'>");
+        htmlBuilder.AppendLine($"                <div class='stat'><strong>{result.Statistics.TotalProjects}</strong><br/>Projects</div>");
+        htmlBuilder.AppendLine($"                <div class='stat'><strong>{result.Statistics.TotalNuGetPackages}</strong><br/>NuGet Packages</div>");
+        htmlBuilder.AppendLine($"                <div class='stat'><strong>{result.Statistics.TotalServices}</strong><br/>Services</div>");
+        htmlBuilder.AppendLine($"                <div class='stat'><strong>{result.Statistics.AnalysisDuration.TotalSeconds}</strong><br/>Analysis Time (s)</div>");
+        htmlBuilder.AppendLine("            </div>");
+        htmlBuilder.AppendLine("        </div>");
+
         htmlBuilder.AppendLine("    </div>");
 
         // Initialize Mermaid
