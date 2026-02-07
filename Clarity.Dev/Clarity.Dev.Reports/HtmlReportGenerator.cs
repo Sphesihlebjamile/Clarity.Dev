@@ -39,6 +39,21 @@ public class HtmlReportGenerator
         htmlBuilder.AppendLine("            </div>");
         htmlBuilder.AppendLine("        </div>");
 
+        // Circular Dependency Warnings (if any)
+        if (result.CircularDependencies.Any())
+        {
+            htmlBuilder.AppendLine("        <div class='warning-card'>");
+            htmlBuilder.AppendLine($"            <h2>Circular Dependencies ({result.CircularDependencies.Count})</h2>");
+            htmlBuilder.AppendLine("            <ul>");
+            foreach(var cycle in result.CircularDependencies)
+            {
+                htmlBuilder.AppendLine($"                <li>{cycle.Description}</li>");
+            }
+            htmlBuilder.AppendLine("            </ul>");
+            htmlBuilder.AppendLine("        </div>");
+        }
+
+        // Container ending
         htmlBuilder.AppendLine("    </div>");
 
         // Initialize Mermaid
