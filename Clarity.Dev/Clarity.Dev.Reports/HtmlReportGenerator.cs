@@ -22,6 +22,17 @@ public class HtmlReportGenerator
         htmlBuilder.AppendLine("</head>");
 
         htmlBuilder.AppendLine("<body>");
+
+        // Content container
+        htmlBuilder.AppendLine("    <div class='container'>");
+        htmlBuilder.AppendLine("        <h1>Hello World!</h1>");
+        htmlBuilder.AppendLine("    </div>");
+
+        // Initialize Mermaid
+        htmlBuilder.AppendLine("    <script>");
+        htmlBuilder.AppendLine("        mermaid.initialize({ startOnLoad: true, theme: 'default' });");
+        htmlBuilder.AppendLine("    </script>");
+
         htmlBuilder.AppendLine("</body>");
         htmlBuilder.AppendLine("</html>");
 
