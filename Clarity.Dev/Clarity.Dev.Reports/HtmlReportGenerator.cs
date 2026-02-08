@@ -61,6 +61,17 @@ public class HtmlReportGenerator
         htmlBuilder.AppendLine("            </div>");
         htmlBuilder.AppendLine("        </div>");
 
+        // Service communication diagram
+        if (result.ServiceCommunications.Any())
+        {
+            htmlBuilder.AppendLine("        <div class='diagram-card'>");
+            htmlBuilder.AppendLine("            <h2>Service Communication Map</h2>");
+            htmlBuilder.AppendLine("            <div class='mermaid'>");
+            htmlBuilder.AppendLine(GenerateServiceCommunicationDiagram(result));
+            htmlBuilder.AppendLine("            </div>");
+            htmlBuilder.AppendLine("        </div>");
+        }
+
         // Container ending
         htmlBuilder.AppendLine("    </div>");
 
@@ -146,7 +157,73 @@ public class HtmlReportGenerator
 
     private string GenerateServiceCommunicationDiagram(SolutionModels.SolutionAnalysisResult result)
     {
-        throw new NotImplementedException();
+        var htmlBuilder = new StringBuilder();
+
+        // Mermaid init for straighter layout and consistent styling
+        htmlBuilder.AppendLine("%%{init:{");
+        htmlBuilder.AppendLine("  'flowchart': { 'curve': 'linear', 'rankSpacing': 60, 'nodeSpacing': 50, 'htmlLabels': true },");
+        htmlBuilder.AppendLine("  'theme': 'default'");
+        htmlBuilder.AppendLine("}}%%");
+        htmlBuilder.AppendLine("graph LR");
+
+        // Aggregate communications by source, target and type so we don't draw many parallel edges
+        var aggregated = result.ServiceCommunications
+            .GroupBy(c => new { c.SourceProject, c.TargetService, c.Type })
+            .Select(g => new { g.Key.SourceProject, g.Key.TargetService, g.Key.Type, Count = g.Count() })
+            .ToList();
+
+        var declared = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        string DeclareNode(string id, string label, string kind)
+        {
+            if (!declared.Contains(id))
+            {
+                htmlBuilder.AppendLine($"    {id}[\"{label}\"]");
+                // simple styles: services (targets) purple, applications green, tests orange
+                if (kind == "service")
+                    htmlBuilder.AppendLine($"    style {id} fill:#f3e5f5,stroke:#4a148c,stroke-width:2px");
+                else if (kind == "test")
+                    htmlBuilder.AppendLine($"    style {id} fill:#fff3e0,stroke:#e65100,stroke-width:2px,stroke-dasharray: 5 5");
+                else
+                    htmlBuilder.AppendLine($"    style {id} fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px");
+
+                declared.Add(id);
+            }
+            return id;
+        }
+
+        foreach (var entry in aggregated)
+        {
+            var sourceId = SanitizeForMermaid(entry.SourceProject);
+            var targetId = SanitizeForMermaid(entry.TargetService);
+            var typeLabel = GetCommunicationTypeLabel(entry.Type);
+            var labelWithCount = entry.Count > 1 ? $"{typeLabel} ({entry.Count})" : typeLabel;
+
+            // Heuristics to choose node kind for styling
+            var sourceKind = (entry.SourceProject?.IndexOf("test", StringComparison.OrdinalIgnoreCase) >= 0 || entry.SourceProject?.EndsWith("Tests") == true)
+                ? "test" : "app";
+            var targetKind = "service";
+
+            DeclareNode(sourceId, entry.SourceProject, sourceKind);
+            DeclareNode(targetId, entry.TargetService, targetKind);
+
+            htmlBuilder.AppendLine($"    {sourceId} -->|\"{labelWithCount}\"| {targetId}");
+        }
+
+        return htmlBuilder.ToString();
+    }
+
+    private string GetCommunicationTypeLabel(SolutionModels.Enums.CommunicationType type)
+    {
+        return type switch
+        {
+            SolutionModels.Enums.CommunicationType.HttpClient => "HTTP Client",
+            SolutionModels.Enums.CommunicationType.GrpcClient => "gRPC Client",
+            SolutionModels.Enums.CommunicationType.MessageQueue => "Message Queue",
+            SolutionModels.Enums.CommunicationType.Database => "Database",
+            SolutionModels.Enums.CommunicationType.SignalR => "SignalR",
+            _ => "Unknown"
+        };
     }
 
     private string GenerateProjectSection(SolutionModels.ProjectInfo project)
