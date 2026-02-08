@@ -72,6 +72,15 @@ public class HtmlReportGenerator
             htmlBuilder.AppendLine("        </div>");
         }
 
+        // Project details
+        htmlBuilder.AppendLine("        <div class='projects-section'>");
+        htmlBuilder.AppendLine("            <h2>Project Details</h2>");
+        foreach(var project in result.Projects.OrderBy(proj => proj.Name))
+        {
+            htmlBuilder.AppendLine(GenerateProjectSection(project));
+        }
+        htmlBuilder.AppendLine("        </div>");
+
         // Container ending
         htmlBuilder.AppendLine("    </div>");
 
@@ -228,7 +237,58 @@ public class HtmlReportGenerator
 
     private string GenerateProjectSection(SolutionModels.ProjectInfo project)
     {
-        throw new NotImplementedException();
+        var sb = new StringBuilder();
+        var isTest = project.IsTestProject ? " 🧪" : "";
+
+        sb.AppendLine("            <details class='project-card'>");
+        sb.AppendLine($"                <summary><h3>{project.Name}{isTest}</h3></summary>");
+        sb.AppendLine("                <div class='project-details'>");
+        sb.AppendLine($"                    <p><strong>Target Framework:</strong> {project.TargetFramework}</p>");
+        sb.AppendLine($"                    <p><strong>C# Version:</strong> {project.CSharpVersion}</p>");
+        sb.AppendLine($"                    <p><strong>Output Type:</strong> {project.OutputType}</p>");
+
+        // NuGet packages
+        if (project.NuGetDependencies.Any())
+        {
+            sb.AppendLine("                    <h4>📦 NuGet Dependencies</h4>");
+            sb.AppendLine("                    <table>");
+            sb.AppendLine("                        <thead><tr><th>Package</th><th>Version</th></tr></thead>");
+            sb.AppendLine("                        <tbody>");
+            foreach (var dep in project.NuGetDependencies.OrderBy(d => d.PackageName))
+            {
+                sb.AppendLine($"                            <tr><td>{dep.PackageName}</td><td>{dep.Version}</td></tr>");
+            }
+            sb.AppendLine("                        </tbody>");
+            sb.AppendLine("                    </table>");
+        }
+
+        // Detected services
+        if (project.DetectedServices.Any())
+        {
+            sb.AppendLine("                    <h4>🔧 Detected Services</h4>");
+            sb.AppendLine("                    <ul>");
+            foreach (var service in project.DetectedServices)
+            {
+                //var icon = GetServiceIcon(service.Type);
+                sb.AppendLine($"                        <li><strong>{service.Name}</strong> ({service.Type})");
+                if (service.Routes.Any())
+                {
+                    sb.AppendLine("                            <ul>");
+                    foreach (var route in service.Routes)
+                    {
+                        sb.AppendLine($"                                <li><code>{route}</code></li>");
+                    }
+                    sb.AppendLine("                            </ul>");
+                }
+                sb.AppendLine("                        </li>");
+            }
+            sb.AppendLine("                    </ul>");
+        }
+
+        sb.AppendLine("                </div>");
+        sb.AppendLine("            </details>");
+
+        return sb.ToString();
     }
 
     private string SanitizeForMermaid(string input)
@@ -257,7 +317,7 @@ public class HtmlReportGenerator
             .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
             h1 { font-size: 2.5em; margin-bottom: 10px; color: #2c3e50; }
             h2 { font-size: 1.8em; margin-bottom: 15px; color: #34495e; }
-            h3 { font-size: 1.3em; color: #2c3e50; }
+            h3 { font-size: 1.3em; color: #2c3e50; white-space: nowrap; }
             .metadata { color: #7f8c8d; margin-bottom: 30px; }
             .summary-card, .warning-card, .diagram-card, .projects-section { background: white; padding: 25px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
             .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 15px; }
@@ -266,7 +326,8 @@ public class HtmlReportGenerator
             .warning-card { border-left: 4px solid #e74c3c; background: #ffe8e6; }
             .warning-card h2 { color: #c0392b; }
             .project-card { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; padding: 15px; background: #fafafa; }
-            .project-card summary { cursor: pointer; font-weight: bold; }
+            .project-card summary { cursor: pointer; font-weight: bold; display: flex; align-items: center; white-space: nowrap; }
+            .project-card summary h3 { margin: 0; white-space: nowrap; }
             .project-card summary:hover { color: #3498db; }
             .project-details { margin-top: 15px; padding-left: 20px; }
             table { width: 100%; border-collapse: collapse; margin-top: 10px; }
