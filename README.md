@@ -61,10 +61,10 @@ dotnet run --project /Clarity.Dev/src/Clarity.Dev.CLI/ (<YourSolution.sln/.slnx>
 - [x] Service detection
 - [x] Communication analysis
 - [x] Circular dependency detection
-- [ ] HTML report generation
-- [ ] JSON export
+- [x] HTML report generation
 
 ### Phase 2: Enhanced Reports (In Progress)
+- [ ] JSON export
 - [ ] PDF export with QuestPDF
 - [ ] Improved diagram rendering
 - [ ] Code metrics (lines of code, complexity)
