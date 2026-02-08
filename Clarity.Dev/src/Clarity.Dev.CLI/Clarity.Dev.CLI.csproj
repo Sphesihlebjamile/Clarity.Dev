@@ -5,6 +5,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<Version>1.0.0-beta</Version>
+	<AssemblyInformationalVersion>1.0.0-beta</AssemblyInformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Clarity.Dev.Reports\Clarity.Dev.Reports.csproj" />
     <ProjectReference Include="..\Clarity.Dev.Analyzer\Clarity.Dev.NET.Analyzer.csproj" />
   </ItemGroup>
 
