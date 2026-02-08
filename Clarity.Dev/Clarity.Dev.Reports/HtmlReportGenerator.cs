@@ -53,6 +53,14 @@ public class HtmlReportGenerator
             htmlBuilder.AppendLine("        </div>");
         }
 
+        // Project Dependency Graph
+        htmlBuilder.AppendLine("        <div class='diagram-card'>");
+        htmlBuilder.AppendLine("            <h2>Project Dependency Graph</h2>");
+        htmlBuilder.AppendLine("            <div class='mermaid'>");
+        htmlBuilder.AppendLine(GenerateProjectDependencyDiagram(result.Projects));
+        htmlBuilder.AppendLine("            </div>");
+        htmlBuilder.AppendLine("        </div>");
+
         // Container ending
         htmlBuilder.AppendLine("    </div>");
 
@@ -71,7 +79,69 @@ public class HtmlReportGenerator
 
     private string GenerateProjectDependencyDiagram(List<SolutionModels.ProjectInfo> projects)
     {
-        throw new NotImplementedException();
+        var htmlBuilder = new StringBuilder();
+
+        // Add Mermaid configuration for better layout
+        htmlBuilder.AppendLine("%%{init: {");
+        htmlBuilder.AppendLine("  'flowchart': {");
+        htmlBuilder.AppendLine("    'curve': 'linear',");
+        htmlBuilder.AppendLine("    'rankSpacing': 80,");
+        htmlBuilder.AppendLine("    'nodeSpacing': 50,");
+        htmlBuilder.AppendLine("    'htmlLabels': true");
+        htmlBuilder.AppendLine("  },");
+        htmlBuilder.AppendLine("  'theme': 'default'");
+        htmlBuilder.AppendLine("}}%%");
+
+        htmlBuilder.AppendLine("graph LR");
+
+        // Categorize projects by type for better visual organization
+        var testProjects = projects.Where(p => p.IsTestProject).ToList();
+        var domainProjects = projects.Where(p => !p.IsTestProject && p.Name.Contains("Domain")).ToList();
+        var infrastructureProjects = projects.Where(p => !p.IsTestProject && p.Name.Contains("Infrastructure")).ToList();
+        var applicationProjects = projects.Where(p => !p.IsTestProject && !p.Name.Contains("Domain") && !p.Name.Contains("Infrastructure")).ToList();
+
+        // Add nodes with styling based on type
+        foreach (var project in domainProjects)
+        {
+            var projectId = SanitizeForMermaid(project.Name);
+            htmlBuilder.AppendLine($"    {projectId}[\"{project.Name}\"]");
+            htmlBuilder.AppendLine($"    style {projectId} fill:#e1f5ff,stroke:#01579b,stroke-width:2px");
+        }
+
+        foreach (var project in infrastructureProjects)
+        {
+            var projectId = SanitizeForMermaid(project.Name);
+            htmlBuilder.AppendLine($"    {projectId}[\"{project.Name}\"]");
+            htmlBuilder.AppendLine($"    style {projectId} fill:#f3e5f5,stroke:#4a148c,stroke-width:2px");
+        }
+
+        foreach (var project in applicationProjects)
+        {
+            var projectId = SanitizeForMermaid(project.Name);
+            htmlBuilder.AppendLine($"    {projectId}[\"{project.Name}\"]");
+            htmlBuilder.AppendLine($"    style {projectId} fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px");
+        }
+
+        foreach (var project in testProjects)
+        {
+            var projectId = SanitizeForMermaid(project.Name);
+            htmlBuilder.AppendLine($"    {projectId}[\"{project.Name}\"]");
+            htmlBuilder.AppendLine($"    style {projectId} fill:#fff3e0,stroke:#e65100,stroke-width:2px,stroke-dasharray: 5 5");
+        }
+
+        // Add all dependencies
+        foreach (var project in projects)
+        {
+            var projectId = SanitizeForMermaid(project.Name);
+
+            foreach (var dependency in project.ProjectReferences)
+            {
+                var depId = SanitizeForMermaid(dependency);
+                htmlBuilder.AppendLine($"    {projectId} --> {depId}");
+            }
+        }
+
+        return htmlBuilder.ToString();
     }
 
     private string GenerateServiceCommunicationDiagram(SolutionModels.SolutionAnalysisResult result)
@@ -82,6 +152,24 @@ public class HtmlReportGenerator
     private string GenerateProjectSection(SolutionModels.ProjectInfo project)
     {
         throw new NotImplementedException();
+    }
+
+    private string SanitizeForMermaid(string input)
+    {
+        // Remove special characters that might break Mermaid syntax and replace spaces with underscores
+        return input
+            .Replace(".", "_")
+            .Replace("-", "_")
+            .Replace(" ", "_")
+            .Replace("(", "_")
+            .Replace(")", "_")
+            .Replace("[", "_")
+            .Replace("]", "_")
+            .Replace("{", "_")
+            .Replace("}", "_")
+            .Replace("|", "_")
+            .Replace("\"", "_")
+            .Replace("'", "_");
     }
 
     private string GetEmbeddedStyles()
