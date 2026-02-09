@@ -88,7 +88,7 @@ internal static class SolutionAnalyzer
             }
             else if (SolutionCommandConstantsHelper.IsOutputOption(arguments[inputIndex]) && (inputIndex + 1) <= arguments.Length)
             {
-                if (!OutputFormatTypesHelper.IsValidOutputFormat(arguments[inputIndex]))
+                if (!OutputFormatTypesHelper.IsValidOutputFormat(arguments[inputIndex + 1]))
                 {
                     throw new Exception("Invalid Output Format!");
                 }
