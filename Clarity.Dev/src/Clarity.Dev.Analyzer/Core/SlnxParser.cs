@@ -3,12 +3,9 @@
 /// <summary>
 /// Parses .slnc (XML-based solution) files 🦢
 /// </summary>
-public class SlnxParser
+public class SlnxParser : ISlnxParser
 {
-    /// <summary>
-    /// Parses a .slnx file and returns the list of project file paths 🦢
-    /// </summary>
-    public static List<string> ParseSlnx(string slnxPath)
+    public List<string> ParseSlnx(string slnxPath)
     {
         // Validate Input
         if (string.IsNullOrWhiteSpace(slnxPath))

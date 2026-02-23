@@ -5,22 +5,18 @@
 /// </summary>
 /// <param name="projectParser"></param>
 public class SolutionScanner(
-    ProjectParser projectParser,
-    ServiceDetector serviceDetector,
-    CommunicationAnalyzer communicationAnalyzer,
-    CircularDependencyDetector circularDependencyDetector)
+    IProjectParser projectParser,
+    IServiceDetector serviceDetector,
+    ICommunicationAnalyzer communicationAnalyzer,
+    ICircularDependencyDetector circularDependencyDetector,
+    ISlnxParser slnxParser) : ISolutionScanner
 {
-    private readonly ProjectParser _projectParser = projectParser;
-    private readonly ServiceDetector _serviceDetector = serviceDetector;
-    private readonly CommunicationAnalyzer _communicationAnalyzer = communicationAnalyzer;
-    private readonly CircularDependencyDetector _circularDependencyDetector = circularDependencyDetector;
+    private readonly IProjectParser _projectParser = projectParser;
+    private readonly IServiceDetector _serviceDetector = serviceDetector;
+    private readonly ICommunicationAnalyzer _communicationAnalyzer = communicationAnalyzer;
+    private readonly ICircularDependencyDetector _circularDependencyDetector = circularDependencyDetector;
+    private readonly ISlnxParser _slnxParser = slnxParser;
 
-    /// <summary>
-    /// Analyzes a .NET solution (.sln or .slnx) and returns comprehensive analysis results 🦢
-    /// </summary>
-    /// <param name="solutionPath"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
     public async Task<SolutionModels.SolutionAnalysisResult> AnalyzeSolutionAsync(
         string solutionPath,
         CancellationToken cancellationToken = default)
@@ -50,7 +46,7 @@ public class SolutionScanner(
         {
             // Parse .slnx file manually and create workspace
             Console.WriteLine("Detexted .slnx file (XML-based solution)");
-            workspace = await LoadSlnxSolutionAsync(solutionPath);
+            workspace = await LoadSlnxSolutionAsync(solutionPath, _slnxParser);
         }
         else if(SolutionExtensionTypeHelper.IsSlnFile(extension))
         {
@@ -137,10 +133,10 @@ public class SolutionScanner(
     /// </summary>
     /// <param name="slnxPath">Path to .slnx file</param>
     /// <returns></returns>
-    private async Task<AdhocWorkspace> LoadSlnxSolutionAsync(string slnxPath)
+    private async Task<AdhocWorkspace> LoadSlnxSolutionAsync(string slnxPath, ISlnxParser slnxParser)
     {
         var workspace = new AdhocWorkspace();
-        var projectPaths = SlnxParser.ParseSlnx(slnxPath);
+        var projectPaths = slnxParser.ParseSlnx(slnxPath);
 
         foreach(var projectPath in projectPaths)
         {

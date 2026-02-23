@@ -3,7 +3,7 @@
 /// <summary>
 /// Parses individual project files and extracts metadata 🦢
 /// </summary>
-public class ProjectParser
+public class ProjectParser : IProjectParser
 {
     /// <summary>
     /// Parses a Roslyn project and extracts all relevant information 🦢
