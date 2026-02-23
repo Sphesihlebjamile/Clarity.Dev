@@ -6,12 +6,16 @@
 public interface IProjectParser
 {
     /// <summary>
-    /// Parses a Roslyn project and extracts all relevant information 🦢
+    /// Parses the specified project and returns its information asynchronously 🦢
     /// </summary>
-    /// <param name="project"></param>
-    /// <param name="manager"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    /// <remarks>
+    /// This method may throw exceptions if the project is invalid or if parsing fails due to other
+    /// issues.
+    /// </remarks>
+    /// <param name="project">The project to be parsed, which contains the source code and configuration details.</param>
+    /// <param name="manager">An optional analyzer manager that can be used to apply additional analysis during parsing.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation if needed.</param>
+    /// <returns>A task that represents the asynchronous operation, containing the parsed project information.</returns>
     public Task<SolutionModels.ProjectInfo> ParseProjectAsync(
         Project project,
         AnalyzerManager? manager,
