@@ -1,14 +1,12 @@
 ﻿
 
+using Clarity.Dev.NET.Analyzer.Contracts;
+
 try
 {
+    IConsoleService consoleService = new ConsoleService();
     var cliVersion = GetCliVersion();
-
-    Console.WriteLine("==========================================");
-    Console.WriteLine("|   Clarity.Dev: Solution Analyzer       |");
-    Console.WriteLine("==========================================");
-    Console.WriteLine($"-- v:{cliVersion}");
-    Console.WriteLine();
+    consoleService.DisplayHeader("1.0.0-beta");
 
     var solutionAnalysisInput = SolutionAnalyzer.GetOutputCommands(args);
     await SolutionAnalyzer.AnalyzeSolution(solutionAnalysisInput);

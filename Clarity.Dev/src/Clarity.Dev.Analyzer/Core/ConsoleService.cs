@@ -4,51 +4,69 @@ public class ConsoleService : IConsoleService
 {
     public void DisplayError(string message)
     {
-        throw new NotImplementedException();
+        this.SetForegroundColor(ConsoleColor.Red);
+        this.DisplayInfo($"❌ Error: {message}");
+        this.ResetColor();
+        this.DisplayNewLine();
     }
 
     public void DisplayErrorWithStackTrace(string message, string stackTrace)
     {
-        throw new NotImplementedException();
+        this.SetForegroundColor(ConsoleColor.Red);
+        this.DisplayInfo($"❌ Error: {message}");
+        this.DisplayInfo($"   Stack Trace: {stackTrace}");
+        this.ResetColor();
+        this.DisplayNewLine();
     }
 
     public void DisplayHeader(string version)
     {
-        throw new NotImplementedException();
+        this.ResetColor();
+        this.DisplayLineSeparator();
+        this.DisplayInfo("|   Clarity.Dev: Solution Analyzer    |");
+        this.DisplayLineSeparator();
+        this.DisplayInfo($"Version: {version}");
+        this.DisplayNewLine();
     }
 
-    public void DisplayInfor(string message)
+    public void DisplayInfo(string message)
     {
-        throw new NotImplementedException();
+        Console.WriteLine($"{message}");
     }
 
     public void DisplayLineSeparator()
     {
-        throw new NotImplementedException();
+        Console.WriteLine("=======================================");
     }
 
     public void DisplayNewLine()
     {
-        throw new NotImplementedException();
+        Console.WriteLine();
     }
 
     public void DisplaySuccess(string message)
     {
-        throw new NotImplementedException();
+        this.SetForegroundColor(ConsoleColor.Green);
+        this.DisplayInfo($"✅ {message}");
+        this.ResetColor();
+        this.DisplayNewLine();
     }
 
     public void DisplayWarning(string message)
     {
-        throw new NotImplementedException();
+        this.SetForegroundColor(ConsoleColor.Yellow);
+        this.DisplayInfo($"⚠️ {message}");
+        this.ResetColor();
+        this.DisplayNewLine();
     }
 
     public void ResetColor()
     {
-        throw new NotImplementedException();
+        Console.ResetColor();
     }
 
-    public void setForegroundColor(ConsoleColor color)
+    public void SetForegroundColor(ConsoleColor color)
     {
-        throw new NotImplementedException();
+        Console.ForegroundColor = color;
     }
 }

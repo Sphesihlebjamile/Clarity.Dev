@@ -6,10 +6,12 @@ internal static class SolutionAnalyzer
     {
         try
         {
+            ConsoleService _consoleService = new ConsoleService();
+
             if (!File.Exists(solutionAnalysisInput.SolutionPath))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"❌ Error: Solution file not found: {solutionAnalysisInput.SolutionPath}");
+                _consoleService.DisplayInfo($"❌ Error: Solution file not found: {solutionAnalysisInput.SolutionPath}");
                 Console.ResetColor();
                 return 1;
             }
@@ -19,7 +21,6 @@ internal static class SolutionAnalyzer
             CommunicationAnalyzer _communicationAnalyzer = new();
             CircularDependencyDetector _circularDependencyDetector = new();
             SlnxParser _slnxParser = new();
-            ConsoleService _consoleService = new ConsoleService();
             var scanner = new SolutionScanner(_projectParser, _serviceDetector, _communicationAnalyzer, _circularDependencyDetector, _slnxParser, _consoleService);
             var result = await scanner.AnalyzeSolutionAsync(solutionAnalysisInput.SolutionPath);
 
