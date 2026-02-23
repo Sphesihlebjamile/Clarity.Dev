@@ -19,7 +19,8 @@ internal static class SolutionAnalyzer
             CommunicationAnalyzer _communicationAnalyzer = new();
             CircularDependencyDetector _circularDependencyDetector = new();
             SlnxParser _slnxParser = new();
-            var scanner = new SolutionScanner(_projectParser, _serviceDetector, _communicationAnalyzer, _circularDependencyDetector, _slnxParser);
+            ConsoleService _consoleService = new ConsoleService();
+            var scanner = new SolutionScanner(_projectParser, _serviceDetector, _communicationAnalyzer, _circularDependencyDetector, _slnxParser, _consoleService);
             var result = await scanner.AnalyzeSolutionAsync(solutionAnalysisInput.SolutionPath);
 
             Console.WriteLine();

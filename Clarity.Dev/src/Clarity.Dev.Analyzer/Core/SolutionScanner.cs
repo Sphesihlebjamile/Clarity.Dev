@@ -9,13 +9,15 @@ public class SolutionScanner(
     IServiceDetector serviceDetector,
     ICommunicationAnalyzer communicationAnalyzer,
     ICircularDependencyDetector circularDependencyDetector,
-    ISlnxParser slnxParser) : ISolutionScanner
+    ISlnxParser slnxParser,
+    IConsoleService consoleService) : ISolutionScanner
 {
     private readonly IProjectParser _projectParser = projectParser;
     private readonly IServiceDetector _serviceDetector = serviceDetector;
     private readonly ICommunicationAnalyzer _communicationAnalyzer = communicationAnalyzer;
     private readonly ICircularDependencyDetector _circularDependencyDetector = circularDependencyDetector;
     private readonly ISlnxParser _slnxParser = slnxParser;
+    private readonly IConsoleService _consoleService = consoleService;
 
     public async Task<SolutionModels.SolutionAnalysisResult> AnalyzeSolutionAsync(
         string solutionPath,

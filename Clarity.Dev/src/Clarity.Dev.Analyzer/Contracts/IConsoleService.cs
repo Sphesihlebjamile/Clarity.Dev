@@ -1,4 +1,4 @@
-﻿namespace Clarity.Dev.CLI.Contracts;
+﻿namespace Clarity.Dev.NET.Analyzer.Contracts;
 
 public interface IConsoleService
 {
