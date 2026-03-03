@@ -9,13 +9,15 @@ public class SolutionScanner(
     IServiceDetector serviceDetector,
     ICommunicationAnalyzer communicationAnalyzer,
     ICircularDependencyDetector circularDependencyDetector,
-    ISlnxParser slnxParser) : ISolutionScanner
+    ISlnxParser slnxParser,
+    IConsoleService consoleService) : ISolutionScanner
 {
     private readonly IProjectParser _projectParser = projectParser;
     private readonly IServiceDetector _serviceDetector = serviceDetector;
     private readonly ICommunicationAnalyzer _communicationAnalyzer = communicationAnalyzer;
     private readonly ICircularDependencyDetector _circularDependencyDetector = circularDependencyDetector;
     private readonly ISlnxParser _slnxParser = slnxParser;
+    private readonly IConsoleService _consoleService = consoleService;
 
     public async Task<SolutionModels.SolutionAnalysisResult> AnalyzeSolutionAsync(
         string solutionPath,
@@ -35,7 +37,7 @@ public class SolutionScanner(
             AnalyzedAt = DateTime.UtcNow
         };
 
-        Console.WriteLine($"Analyzing Solution: {result.SolutionName}");
+        _consoleService.DisplayInfo($"Analyzing Solution: {result.SolutionName}");
 
         // Step 1: Detect solution file type and load projects accordingly
         var extension = Path.GetExtension(solutionPath).ToLowerInvariant();
@@ -45,13 +47,13 @@ public class SolutionScanner(
         if (SolutionExtensionTypeHelper.IsSlnxFile(extension))
         {
             // Parse .slnx file manually and create workspace
-            Console.WriteLine("Detexted .slnx file (XML-based solution)");
+            _consoleService.DisplayInfo("Detexted .slnx file (XML-based solution)");
             workspace = await LoadSlnxSolutionAsync(solutionPath, _slnxParser);
         }
         else if(SolutionExtensionTypeHelper.IsSlnFile(extension))
         {
             // Use Buildalyze to scan traditional .sln file
-            Console.WriteLine("Detected .sln file (traditional solution)");
+            _consoleService.DisplayInfo("Detected .sln file (traditional solution)");
             manager = new(solutionPath);
             workspace = manager.GetWorkspace();
         }
@@ -60,7 +62,7 @@ public class SolutionScanner(
             throw new NotSupportedException("Unsupported solution file type.");
         }
 
-        Console.WriteLine($"Found {workspace.CurrentSolution.Projects.Count()} projects");
+        _consoleService.DisplayInfo($"Found {workspace.CurrentSolution.Projects.Count()} projects");
 
         // Step 2: Parse and analyze each project in solution in parallel
         var projectTasks = workspace.CurrentSolution.Projects
@@ -72,7 +74,7 @@ public class SolutionScanner(
                 }
                 catch(Exception ex)
                 {
-                    Console.WriteLine($"Error parsing project {project.Name}: {ex.Message}");
+                    _consoleService.DisplayError(ex.Message);
                     return null;
                 }
             });
@@ -82,7 +84,7 @@ public class SolutionScanner(
             .Cast<SolutionModels.ProjectInfo>()
             .ToList();
 
-        Console.WriteLine($"Successfully parsed {result.Projects.Count} projects!");
+        _consoleService.DisplayInfo($"Successfully parsed {result.Projects.Count} projects!");
 
         // Step 3: Detect services in each project
         foreach(var projectInfo in result.Projects)
@@ -96,7 +98,7 @@ public class SolutionScanner(
             }
         }
 
-        Console.WriteLine($"Detected {result.Projects.Sum(p => p.DetectedServices.Count)} services");
+        _consoleService.DisplayInfo($"Detected {result.Projects.Sum(p => p.DetectedServices.Count)} services");
 
         // Step 4: Analyze service communication
         result.ServiceCommunications = await _communicationAnalyzer.AnalyzeCommunicationAsync(
@@ -109,7 +111,7 @@ public class SolutionScanner(
 
         if (result.CircularDependencies.Any())
         {
-            Console.WriteLine($"⚠️  WARNING: Found {result.CircularDependencies.Count} circular dependencies!");
+            _consoleService.DisplayWarning($"⚠️  WARNING: Found {result.CircularDependencies.Count} circular dependencies!");
         }
 
         // Step 6: Calculate 
@@ -161,7 +163,7 @@ public class SolutionScanner(
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"Warning: Could not load project{projectPath}: {ex.Message}");
+                _consoleService.DisplayError($"Warning: Could not load project{projectPath}", ex.Message);
             }
         }
 
