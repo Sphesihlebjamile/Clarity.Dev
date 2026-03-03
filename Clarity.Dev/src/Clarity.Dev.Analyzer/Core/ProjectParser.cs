@@ -139,7 +139,9 @@ public class ProjectParser : IProjectParser
         }
         catch(Exception ex)
         {
-            Console.WriteLine($"Warning: Error parsing project file {projectPath}: {ex.Message}");
+            throw new Exception(
+                message: $"Error parsing project file {projectPath}",
+                innerException: ex);
         }
     }
 

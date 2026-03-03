@@ -9,7 +9,7 @@ try
     consoleService.DisplayHeader("1.0.0-beta");
 
     var solutionAnalysisInput = SolutionAnalyzer.GetOutputCommands(args);
-    await SolutionAnalyzer.AnalyzeSolution(solutionAnalysisInput);
+    await SolutionAnalyzer.AnalyzeSolution(solutionAnalysisInput, consoleService);
 }
 catch(Exception e)
 {

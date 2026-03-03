@@ -1,17 +1,18 @@
-﻿namespace Clarity.Dev.CLI;
+﻿using Clarity.Dev.NET.Analyzer.Contracts;
+
+namespace Clarity.Dev.CLI;
 
 internal static class SolutionAnalyzer
 {
-    public static async Task<int> AnalyzeSolution(SolutionAnalysisInput solutionAnalysisInput)
+    public static async Task<int> AnalyzeSolution(SolutionAnalysisInput solutionAnalysisInput, IConsoleService consoleService)
     {
         try
         {
-            ConsoleService _consoleService = new ConsoleService();
 
             if (!File.Exists(solutionAnalysisInput.SolutionPath))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                _consoleService.DisplayInfo($"❌ Error: Solution file not found: {solutionAnalysisInput.SolutionPath}");
+                consoleService.DisplayInfo($"❌ Error: Solution file not found: {solutionAnalysisInput.SolutionPath}");
                 Console.ResetColor();
                 return 1;
             }
@@ -21,28 +22,21 @@ internal static class SolutionAnalyzer
             CommunicationAnalyzer _communicationAnalyzer = new();
             CircularDependencyDetector _circularDependencyDetector = new();
             SlnxParser _slnxParser = new();
-            var scanner = new SolutionScanner(_projectParser, _serviceDetector, _communicationAnalyzer, _circularDependencyDetector, _slnxParser, _consoleService);
+            var scanner = new SolutionScanner(_projectParser, _serviceDetector, _communicationAnalyzer, _circularDependencyDetector, _slnxParser, consoleService);
             var result = await scanner.AnalyzeSolutionAsync(solutionAnalysisInput.SolutionPath);
 
-            Console.WriteLine();
-            Console.WriteLine("=======================================");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"✓ Analysis complete!");
-            Console.ResetColor();
-            Console.WriteLine($"  • Projects: {result.Statistics.TotalProjects}");
-            Console.WriteLine($"  • NuGet Packages: {result.Statistics.TotalNuGetPackages}");
-            Console.WriteLine($"  • Services: {result.Statistics.TotalServices}");
-            Console.WriteLine($"  • Duration: {result.Statistics.AnalysisDuration.TotalSeconds:F2}s");
+            consoleService.DisplaySuccess("Analysis complete!");
+            consoleService.DisplayInfo($"  - Projects: {result.Statistics.TotalProjects}");
+            consoleService.DisplayInfo($"  - NuGet Packages: {result.Statistics.TotalNuGetPackages}");
+            consoleService.DisplayInfo($"  - Services: {result.Statistics.TotalServices}");
+            consoleService.DisplayInfo($"  - Duration: {result.Statistics.AnalysisDuration.TotalSeconds:F2}s");
 
             if (result.CircularDependencies.Any())
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"  ⚠️  Circular Dependencies: {result.CircularDependencies.Count}");
-                Console.ResetColor();
+                consoleService.DisplayWarning($"Circular Dependencies: {result.CircularDependencies.Count}");
             }
 
-            Console.WriteLine("=======================================");
-            Console.WriteLine();
+            consoleService.DisplayLineSeparator();
 
             if(OutputFormatTypesHelper.IsHtmlFormat(solutionAnalysisInput.OutputFormat) ||
                 OutputFormatTypesHelper.IsBothFormat(solutionAnalysisInput.OutputFormat))
@@ -55,23 +49,15 @@ internal static class SolutionAnalyzer
 
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 string htmlRelativePath = Path.GetRelativePath(Directory.GetCurrentDirectory(), generatedHtmlPath);
-                Console.WriteLine($"HTML report generated at: {htmlRelativePath}");
-                Console.ResetColor();
+                consoleService.DisplaySuccess($"HTML report generated at: {htmlRelativePath}");
             }
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Done!");
-            Console.ResetColor();
+            consoleService.DisplayInfo("Done");
             return 0;
         }
         catch (Exception ex)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"❌ Error: {ex.Message}");
-            Console.WriteLine();
-            Console.WriteLine("Stack Trace:");
-            Console.WriteLine(ex.StackTrace);
-            Console.ResetColor();
+            consoleService.DisplayErrorWithStackTrace(ex.Message, ex.StackTrace ?? string.Empty);
             throw;
         }
     }
