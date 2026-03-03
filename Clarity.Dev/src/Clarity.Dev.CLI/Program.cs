@@ -1,7 +1,4 @@
 ﻿
-
-using Clarity.Dev.NET.Analyzer.Contracts;
-
 try
 {
     IConsoleService consoleService = new ConsoleService();

@@ -1,6 +1,4 @@
-﻿using Clarity.Dev.NET.Analyzer.Contracts;
-
-namespace Clarity.Dev.CLI;
+﻿namespace Clarity.Dev.CLI;
 
 internal static class SolutionAnalyzer
 {
