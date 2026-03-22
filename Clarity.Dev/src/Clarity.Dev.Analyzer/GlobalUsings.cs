@@ -7,7 +7,7 @@ global using System.Diagnostics;
 global using Clarity.Dev.NET.Core.Models;
 global using System.Xml.Linq;
 global using Microsoft.CodeAnalysis.CSharp.Syntax;
-global using Clarity.Dev.NET.Analyzer.Analysis;
 global using Clarity.Dev.NET.Analyzer.Contracts;
+global using Microsoft.Extensions.Configuration;
 
 namespace Clarity.Dev.NET.Analyzer;

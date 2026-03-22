@@ -1,7 +1,7 @@
-﻿namespace Clarity.Dev.NET.Core.Models;
+namespace Clarity.Dev.NET.Core.Models;
 
 /// <summary>
-/// Constants for solution command options
+/// Constants for solution command options 🦢
 /// </summary>
 public static class SolutionCommandConstants
 {
@@ -24,4 +24,9 @@ public static class SolutionCommandConstants
     /// Represents the command-line option to display help information.
     /// </summary>
     public const string HelpOption = "-help";
+
+    /// <summary>
+    /// Represents the command-line option to display version information.
+    /// </summary>
+    public const string VersionOption = "--version";
 }
