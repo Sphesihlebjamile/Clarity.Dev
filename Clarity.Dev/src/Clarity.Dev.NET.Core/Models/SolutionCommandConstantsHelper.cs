@@ -1,4 +1,4 @@
-﻿namespace Clarity.Dev.NET.Core.Models;
+namespace Clarity.Dev.NET.Core.Models;
 
 /// <summary>
 /// Provides static helper methods for determining whether a specified argument matches predefined command-line options
@@ -49,4 +49,15 @@ public static class SolutionCommandConstantsHelper
     /// <see langword="true"/> if the argument matches the help option; otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsHelpOption(string arg) => arg.Equals(SolutionCommandConstants.HelpOption, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Determines whether the specified argument matches the predefined version option, ignoring case.
+    /// </summary>
+    /// <param name="arg">
+    /// This string is compared to the constant value defined in <see cref="SolutionCommandConstants.VersionOption"/>.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/> if the argument matches the version option; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsVersionOption(string arg) => arg.Equals(SolutionCommandConstants.VersionOption, StringComparison.OrdinalIgnoreCase);
 }

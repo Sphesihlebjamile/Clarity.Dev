@@ -1,14 +1,32 @@
-﻿
+
 try
 {
     IConsoleService consoleService = new ConsoleService();
     var cliVersion = GetCliVersion();
-    consoleService.DisplayHeader("1.0.0-beta");
 
-    var solutionAnalysisInput = SolutionAnalyzer.GetOutputCommands(args);
-    await SolutionAnalyzer.AnalyzeSolution(solutionAnalysisInput, consoleService);
+    var config = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .Build();
+
+    ICommandParser commandParser = new CommandParser();
+    var command = commandParser.Parse(args, config);
+
+    if (command.IsVersion)
+    {
+        Console.WriteLine($"Clarity.Dev CLI Version: {cliVersion}");
+        return;
+    }
+
+    if (command.IsHelp)
+    {
+        consoleService.DisplayHeader(cliVersion);
+        consoleService.DisplayHelp();
+    }
+
+    await SolutionAnalyzer.AnalyzeSolution(command, consoleService);
 }
-catch(Exception e)
+catch (Exception e)
 {
     Console.ForegroundColor = ConsoleColor.Red;
     Console.WriteLine(e.Message);
