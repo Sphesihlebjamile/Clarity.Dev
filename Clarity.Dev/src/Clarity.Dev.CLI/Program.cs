@@ -21,22 +21,12 @@ try
     if (command.IsHelp)
     {
         consoleService.DisplayHeader(cliVersion);
-        Console.WriteLine("Usage: dotnet clarity-dev [options]");
-        Console.WriteLine();
-        Console.WriteLine("Options:");
-        Console.WriteLine("  --path <path>         Path to solution file or directory");
-        Console.WriteLine("  --output <format>     Output format (e.g., html)");
-        Console.WriteLine("  --output-path <path>  Output directory path");
-        Console.WriteLine("  -help                 Display this help message");
-        Console.WriteLine("  --version             Display version information");
-        return;
+        consoleService.DisplayHelp();
     }
-
-    consoleService.DisplayHeader(cliVersion);
 
     await SolutionAnalyzer.AnalyzeSolution(command, consoleService);
 }
-catch(Exception e)
+catch (Exception e)
 {
     Console.ForegroundColor = ConsoleColor.Red;
     Console.WriteLine(e.Message);

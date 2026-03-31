@@ -3,6 +3,7 @@
 public interface IConsoleService
 {
     public void DisplayHeader(string version);
+    public void DisplayHelp();
     public void DisplayLineSeparator();
     public void DisplayNewLine();
     public void DisplayInfo(string message);

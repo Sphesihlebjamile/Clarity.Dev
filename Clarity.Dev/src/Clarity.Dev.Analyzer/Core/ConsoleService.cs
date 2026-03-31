@@ -6,7 +6,7 @@ public class ConsoleService : IConsoleService
     {
         this.SetForegroundColor(ConsoleColor.Red);
         this.DisplayInfo($"   Error: {message}");
-        
+
         if (!string.IsNullOrEmpty(exceptionMessage))
         {
             this.DisplayInfo($"   Error: {exceptionMessage}");
@@ -37,6 +37,18 @@ public class ConsoleService : IConsoleService
         this.DisplayLineSeparator();
         this.DisplayInfo($"Version: {version}");
         this.DisplayNewLine();
+    }
+
+    public void DisplayHelp()
+    {
+        this.DisplayInfo("Usage: dotnet clarity-dev [options]");
+        this.DisplayNewLine();
+        this.DisplayInfo("Options:");
+        this.DisplayInfo("  --path <path>         Path to solution file or directory");
+        this.DisplayInfo("  --output <format>     Output format (e.g., html)");
+        this.DisplayInfo("  --output-path <path>  Output directory path");
+        this.DisplayInfo("  -help                 Display this help message");
+        this.DisplayInfo("  --version             Display version information");
     }
 
     public void DisplayInfo(string message)
