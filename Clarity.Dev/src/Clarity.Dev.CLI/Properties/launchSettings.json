@@ -2,7 +2,7 @@
   "profiles": {
     "Clarity.Dev.CLI": {
       "commandName": "Project",
-      "commandLineArgs": "-help",
+      "commandLineArgs": "C:\\Users\\sphesihle.jamile\\Videos\\clean-architecture-manga-main\\Clean-Architecture-Manga.sln",
       "dotnetRunMessages": true
     }
   }
