@@ -11,6 +11,7 @@ public class ApplicationService : IApplicationService
     private readonly IConfigurationRoot _configuration;
     private readonly ISolutionScanner _solutionScanner;
     private readonly IHtmlReportGenerator _htmlReportGenerator;
+    private readonly ISolutionAnalyzer _solutionAnalyzer;
 
     public ApplicationService(
         ICommandParser commandParser, 
@@ -18,7 +19,8 @@ public class ApplicationService : IApplicationService
         IVersionProvider versionProvider,
         IConfigurationRoot configuration,
         ISolutionScanner solutionScanner,
-        IHtmlReportGenerator htmlReportGenerator)
+        IHtmlReportGenerator htmlReportGenerator,
+        ISolutionAnalyzer solutionAnalyzer)
     {
         _commandParser = commandParser;
         _consoleService = consoleService;
@@ -26,6 +28,7 @@ public class ApplicationService : IApplicationService
         _configuration = configuration;
         _solutionScanner = solutionScanner;
         _htmlReportGenerator = htmlReportGenerator;
+        _solutionAnalyzer = solutionAnalyzer;
     }
 
     public async Task<int> RunAsync(string[] args)
@@ -49,7 +52,7 @@ public class ApplicationService : IApplicationService
             }
 
             DisplayHeader(cliVersion);
-            return await SolutionAnalyzer.AnalyzeSolution(command, _consoleService, _solutionScanner, _htmlReportGenerator);
+            return await _solutionAnalyzer.AnalyzeSolution(command, _consoleService, _solutionScanner, _htmlReportGenerator);
         }
         catch (Exception e)
         {
