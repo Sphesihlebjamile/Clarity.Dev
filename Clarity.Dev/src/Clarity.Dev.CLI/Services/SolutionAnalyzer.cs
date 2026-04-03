@@ -1,15 +1,17 @@
+using Clarity.Dev.CLI.Contracts;
 using Clarity.Dev.NET.Core.Models.Contracts;
 using Clarity.Dev.Reports.Contracts;
 
-namespace Clarity.Dev.CLI;
+namespace Clarity.Dev.CLI.Services;
 
-internal static class SolutionAnalyzer
+public class SolutionAnalyzer : ISolutionAnalyzer
 {
-    public static async Task<int> AnalyzeSolution(
+    public async Task<int> AnalyzeSolution(
         IAnalysisCommand command, 
         IConsoleService consoleService,
         ISolutionScanner solutionScanner,
-        IHtmlReportGenerator htmlReportGenerator)
+        IHtmlReportGenerator htmlReportGenerator,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -21,7 +23,7 @@ internal static class SolutionAnalyzer
                 Console.ResetColor();
                 return 1;
             }
-            var result = await solutionScanner.AnalyzeSolutionAsync(command.SolutionPath);
+            var result = await solutionScanner.AnalyzeSolutionAsync(command.SolutionPath, cancellationToken);
 
             consoleService.DisplaySuccess("Analysis complete!");
             consoleService.DisplayInfo($"  - Projects: {result.Statistics.TotalProjects}");
@@ -51,6 +53,11 @@ internal static class SolutionAnalyzer
 
             consoleService.DisplayInfo("Done");
             return 0;
+        }
+        catch (OperationCanceledException)
+        {
+            consoleService.DisplayWarning("⚠️ Analysis was cancelled.");
+            return 1;
         }
         catch (Exception ex)
         {

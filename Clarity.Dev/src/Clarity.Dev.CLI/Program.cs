@@ -15,6 +15,7 @@ var serviceProvider = new ServiceCollection()
     .AddTransient<ICommandParser, CommandParser>()
     .AddTransient<IVersionProvider, VersionProvider>()
     .AddTransient<IApplicationService, ApplicationService>()
+    .AddTransient<ISolutionAnalyzer, SolutionAnalyzer>()
     
     .AddTransient<IProjectParser, ProjectParser>()
     .AddTransient<IServiceDetector, ServiceDetector>()
