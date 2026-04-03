@@ -1,4 +1,4 @@
-﻿using Clarity.Dev.NET.Core.Models.Contracts;
+using Clarity.Dev.NET.Core.Models.Contracts;
 using Clarity.Dev.Reports.Contracts;
 
 namespace Clarity.Dev.CLI.Contracts;
@@ -9,5 +9,6 @@ public interface ISolutionAnalyzer
         IAnalysisCommand command,
         IConsoleService consoleService,
         ISolutionScanner solutionScanner,
-        IHtmlReportGenerator htmlReportGenerator);
+        IHtmlReportGenerator htmlReportGenerator,
+        CancellationToken cancellationToken = default);
 }

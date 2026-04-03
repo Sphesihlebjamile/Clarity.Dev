@@ -31,7 +31,7 @@ public class ApplicationService : IApplicationService
         _solutionAnalyzer = solutionAnalyzer;
     }
 
-    public async Task<int> RunAsync(string[] args)
+    public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -52,7 +52,7 @@ public class ApplicationService : IApplicationService
             }
 
             DisplayHeader(cliVersion);
-            return await _solutionAnalyzer.AnalyzeSolution(command, _consoleService, _solutionScanner, _htmlReportGenerator);
+            return await _solutionAnalyzer.AnalyzeSolution(command, _consoleService, _solutionScanner, _htmlReportGenerator, cancellationToken);
         }
         catch (Exception e)
         {

@@ -10,7 +10,8 @@ public class SolutionAnalyzer : ISolutionAnalyzer
         IAnalysisCommand command, 
         IConsoleService consoleService,
         ISolutionScanner solutionScanner,
-        IHtmlReportGenerator htmlReportGenerator)
+        IHtmlReportGenerator htmlReportGenerator,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -22,7 +23,7 @@ public class SolutionAnalyzer : ISolutionAnalyzer
                 Console.ResetColor();
                 return 1;
             }
-            var result = await solutionScanner.AnalyzeSolutionAsync(command.SolutionPath);
+            var result = await solutionScanner.AnalyzeSolutionAsync(command.SolutionPath, cancellationToken);
 
             consoleService.DisplaySuccess("Analysis complete!");
             consoleService.DisplayInfo($"  - Projects: {result.Statistics.TotalProjects}");
@@ -52,6 +53,11 @@ public class SolutionAnalyzer : ISolutionAnalyzer
 
             consoleService.DisplayInfo("Done");
             return 0;
+        }
+        catch (OperationCanceledException)
+        {
+            consoleService.DisplayWarning("⚠️ Analysis was cancelled.");
+            return 1;
         }
         catch (Exception ex)
         {
