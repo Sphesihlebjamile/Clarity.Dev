@@ -1,45 +1,30 @@
+using Microsoft.Extensions.DependencyInjection;
+using Clarity.Dev.CLI.Contracts;
+using Clarity.Dev.CLI.Services;
+using Clarity.Dev.Reports.Contracts;
 
-try
-{
-    IConsoleService consoleService = new ConsoleService();
-    var cliVersion = GetCliVersion();
+var config = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .Build();
 
-    var config = new ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .Build();
+var serviceProvider = new ServiceCollection()
+    .AddSingleton<IConfigurationRoot>(config)
+    .AddSingleton<IConfiguration>(config)
+    .AddTransient<IConsoleService, ConsoleService>()
+    .AddTransient<ICommandParser, CommandParser>()
+    .AddTransient<IVersionProvider, VersionProvider>()
+    .AddTransient<IApplicationService, ApplicationService>()
+    
+    .AddTransient<IProjectParser, ProjectParser>()
+    .AddTransient<IServiceDetector, ServiceDetector>()
+    .AddTransient<ISlnxParser, SlnxParser>()
+    .AddTransient<ICommunicationAnalyzer, CommunicationAnalyzer>()
+    .AddTransient<ICircularDependencyDetector, CircularDependencyDetector>()
+    .AddTransient<ISolutionScanner, SolutionScanner>()
 
-    ICommandParser commandParser = new CommandParser();
-    var command = commandParser.Parse(args, config);
+    .AddSingleton<IHtmlReportGenerator, HtmlReportGenerator>()
+    .BuildServiceProvider();
 
-    if (command.IsVersion)
-    {
-        Console.WriteLine($"Clarity.Dev CLI Version: {cliVersion}");
-        return;
-    }
-
-    if (command.IsHelp)
-    {
-        consoleService.DisplayHeader(cliVersion);
-        consoleService.DisplayHelp();
-    }
-
-    await SolutionAnalyzer.AnalyzeSolution(command, consoleService);
-}
-catch (Exception e)
-{
-    Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine(e.Message);
-    Console.WriteLine("Ending program with error.");
-    Console.ResetColor();
-}
-
-static string GetCliVersion()
-{
-    var config = new ConfigurationBuilder()
-                        .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                        .Build();
-    var appVersion = config.GetSection("AppSettings:Version").Value ?? "1.0.0";
-    return appVersion;
-}
+var app = serviceProvider.GetRequiredService<IApplicationService>();
+return await app.RunAsync(args);

@@ -1,10 +1,15 @@
 using Clarity.Dev.NET.Core.Models.Contracts;
+using Clarity.Dev.Reports.Contracts;
 
 namespace Clarity.Dev.CLI;
 
 internal static class SolutionAnalyzer
 {
-    public static async Task<int> AnalyzeSolution(IAnalysisCommand command, IConsoleService consoleService)
+    public static async Task<int> AnalyzeSolution(
+        IAnalysisCommand command, 
+        IConsoleService consoleService,
+        ISolutionScanner solutionScanner,
+        IHtmlReportGenerator htmlReportGenerator)
     {
         try
         {
@@ -16,14 +21,7 @@ internal static class SolutionAnalyzer
                 Console.ResetColor();
                 return 1;
             }
-
-            ProjectParser _projectParser = new();
-            ServiceDetector _serviceDetector = new();
-            CommunicationAnalyzer _communicationAnalyzer = new();
-            CircularDependencyDetector _circularDependencyDetector = new();
-            SlnxParser _slnxParser = new();
-            var scanner = new SolutionScanner(_projectParser, _serviceDetector, _communicationAnalyzer, _circularDependencyDetector, _slnxParser, consoleService);
-            var result = await scanner.AnalyzeSolutionAsync(command.SolutionPath);
+            var result = await solutionScanner.AnalyzeSolutionAsync(command.SolutionPath);
 
             consoleService.DisplaySuccess("Analysis complete!");
             consoleService.DisplayInfo($"  - Projects: {result.Statistics.TotalProjects}");
@@ -41,7 +39,6 @@ internal static class SolutionAnalyzer
             if(OutputFormatTypesHelper.IsHtmlFormat(command.OutputFormat) ||
                 OutputFormatTypesHelper.IsBothFormat(command.OutputFormat))
             {
-                HtmlReportGenerator htmlReportGenerator = new();
                 var htmlPath = command.OutputPath.EndsWith(".html")
                     ? command.OutputPath
                     : Path.ChangeExtension(command.OutputPath, ".html");
