@@ -1,4 +1,4 @@
-﻿namespace Clarity.Dev.NET.Analyzer.Core;
+namespace Clarity.Dev.NET.Analyzer.Core;
 
 /// <summary>
 /// Main orchestrator for analyzing .NET solutions 🦢
@@ -40,6 +40,7 @@ public class SolutionScanner(
         _consoleService.DisplayInfo($"Analyzing Solution: {result.SolutionName}");
 
         // Step 1: Detect solution file type and load projects accordingly
+        cancellationToken.ThrowIfCancellationRequested();
         var extension = Path.GetExtension(solutionPath).ToLowerInvariant();
         AdhocWorkspace workspace;
         AnalyzerManager? manager = null;
@@ -65,6 +66,7 @@ public class SolutionScanner(
         _consoleService.DisplayInfo($"Found {workspace.CurrentSolution.Projects.Count()} projects");
 
         // Step 2: Parse and analyze each project in solution in parallel
+        cancellationToken.ThrowIfCancellationRequested();
         var projectTasks = workspace.CurrentSolution.Projects
             .Select(async project =>
             {
@@ -87,6 +89,7 @@ public class SolutionScanner(
         _consoleService.DisplayInfo($"Successfully parsed {result.Projects.Count} projects!");
 
         // Step 3: Detect services in each project
+        cancellationToken.ThrowIfCancellationRequested();
         foreach(var projectInfo in result.Projects)
         {
             var roslynProject = workspace.CurrentSolution.Projects.FirstOrDefault(proj => proj.Name == projectInfo.Name);
@@ -101,12 +104,14 @@ public class SolutionScanner(
         _consoleService.DisplayInfo($"Detected {result.Projects.Sum(p => p.DetectedServices.Count)} services");
 
         // Step 4: Analyze service communication
+        cancellationToken.ThrowIfCancellationRequested();
         result.ServiceCommunications = await _communicationAnalyzer.AnalyzeCommunicationAsync(
             workspace.CurrentSolution,
             result.Projects,
             cancellationToken);
 
         // Step 5: Detect circular dependencies
+        cancellationToken.ThrowIfCancellationRequested();
         result.CircularDependencies = _circularDependencyDetector.DetectCircularDependencies(result.Projects);
 
         if (result.CircularDependencies.Any())

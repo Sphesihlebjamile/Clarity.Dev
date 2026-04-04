@@ -38,8 +38,9 @@ public class SolutionAnalyzer : ISolutionAnalyzer
 
             consoleService.DisplayLineSeparator();
 
-            if(OutputFormatTypesHelper.IsHtmlFormat(command.OutputFormat) ||
-                OutputFormatTypesHelper.IsBothFormat(command.OutputFormat))
+            if((OutputFormatTypesHelper.IsHtmlFormat(command.OutputFormat) ||
+                OutputFormatTypesHelper.IsBothFormat(command.OutputFormat)) &&
+                cancellationToken.IsCancellationRequested == false)
             {
                 var htmlPath = command.OutputPath.EndsWith(".html")
                     ? command.OutputPath
@@ -56,7 +57,7 @@ public class SolutionAnalyzer : ISolutionAnalyzer
         }
         catch (OperationCanceledException)
         {
-            consoleService.DisplayWarning("⚠️ Analysis was cancelled.");
+            consoleService.DisplayWarning("    Analysis was cancelled.");
             return 1;
         }
         catch (Exception ex)
