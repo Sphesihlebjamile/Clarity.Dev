@@ -53,7 +53,7 @@ public class SolutionAnalyzer : ISolutionAnalyzer
         }
         catch (OperationCanceledException)
         {
-            consoleService.DisplayWarning("    Analysis was cancelled.");
+            consoleService.DisplayWarning("Analysis was cancelled.");
             return 1;
         }
         catch (Exception ex)

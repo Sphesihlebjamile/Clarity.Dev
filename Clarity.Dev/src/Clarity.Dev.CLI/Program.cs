@@ -12,4 +12,5 @@ Console.CancelKeyPress += (_, e) =>
 };
 
 var app = serviceProvider.GetRequiredService<IApplicationService>();
-return await app.RunAsync(args, cts.Token);
+var exitCode = await app.RunAsync(args, cts.Token);
+Environment.Exit(exitCode);

@@ -37,19 +37,27 @@ public class ApplicationService : IApplicationService
 
             if (command.IsVersion)
             {
-                Console.WriteLine($"Clarity.Dev CLI Version: {cliVersion}");
+                _consoleService.DisplayHeader(cliVersion);
                 return 0;
             }
 
             if (command.IsHelp)
             {
-                DisplayHeader(cliVersion);
+                _consoleService.DisplayHeader(cliVersion);
                 _consoleService.DisplayHelp();
                 return 0;
             }
 
-            DisplayHeader(cliVersion);
+            _consoleService.DisplayHeader(cliVersion);
             return await _solutionAnalyzer.AnalyzeSolution(command, _consoleService, _solutionScanner, _htmlReportGenerator, cancellationToken);
+        }
+        catch (CliException ex)
+        {
+            _consoleService.DisplayError(ex.Message);
+            _consoleService.SetForegroundColor(ConsoleColor.Red);
+            _consoleService.DisplayInfo("Ending program with error.");
+            _consoleService.ResetColor();
+            return ex.ExitCode;
         }
         catch (Exception e)
         {
@@ -59,10 +67,5 @@ public class ApplicationService : IApplicationService
             _consoleService.ResetColor();
             return 1;
         }
-    }
-
-    private void DisplayHeader(string cliVersion)
-    {
-        _consoleService.DisplayHeader(cliVersion);
     }
 }
