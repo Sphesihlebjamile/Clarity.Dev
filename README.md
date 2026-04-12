@@ -59,13 +59,14 @@ dotnet run --project /Clarity.Dev/src/Clarity.Dev.CLI/ (<YourSolution.sln/.slnx>
 
 ## Roadmap
 
-### Phase 1: Core Analyzer (In-Progress)
+### Phase 1: Core Analyzer (Completed ✅)
 - [x] Solution scanning and project parsing
 - [x] Dependency graph building
 - [x] Service detection
 - [x] Communication analysis
 - [x] Circular dependency detection
 - [x] HTML report generation
+- [x] GitHub Actions CI/CD pipeline
 
 ### Phase 2: Enhanced Reports (In Progress)
 - [ ] JSON export
