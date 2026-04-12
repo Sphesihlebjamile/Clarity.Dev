@@ -3,7 +3,7 @@
 /// <summary>
 /// Parses individual project files and extracts metadata 🦢
 /// </summary>
-public class ProjectParser
+public class ProjectParser : IProjectParser
 {
     /// <summary>
     /// Parses a Roslyn project and extracts all relevant information 🦢
@@ -139,7 +139,9 @@ public class ProjectParser
         }
         catch(Exception ex)
         {
-            Console.WriteLine($"Warning: Error parsing project file {projectPath}: {ex.Message}");
+            throw new Exception(
+                message: $"Error parsing project file {projectPath}",
+                innerException: ex);
         }
     }
 

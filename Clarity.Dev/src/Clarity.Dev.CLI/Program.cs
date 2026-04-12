@@ -1,32 +1,16 @@
-﻿
 
-try
+
+var serviceProvider = new ServiceCollection()
+    .AddClarityCli()
+    .BuildServiceProvider();
+
+using var cts = new CancellationTokenSource();
+Console.CancelKeyPress += (_, e) =>
 {
-    var cliVersion = GetCliVersion();
+    e.Cancel = true;
+    cts.Cancel();
+};
 
-    Console.WriteLine("==========================================");
-    Console.WriteLine("|   Clarity.Dev: Solution Analyzer       |");
-    Console.WriteLine("==========================================");
-    Console.WriteLine($"-- v:{cliVersion}");
-    Console.WriteLine();
-
-    var solutionAnalysisInput = SolutionAnalyzer.GetOutputCommands(args);
-    await SolutionAnalyzer.AnalyzeSolution(solutionAnalysisInput);
-}
-catch(Exception e)
-{
-    Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine(e.Message);
-    Console.WriteLine("Ending program with error.");
-    Console.ResetColor();
-}
-
-static string GetCliVersion()
-{
-    var config = new ConfigurationBuilder()
-                        .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                        .Build();
-    var appVersion = config.GetSection("AppSettings:Version").Value ?? "1.0.0";
-    return appVersion;
-}
+var app = serviceProvider.GetRequiredService<IApplicationService>();
+var exitCode = await app.RunAsync(args, cts.Token);
+Environment.Exit(exitCode);

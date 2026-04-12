@@ -1,8 +1,9 @@
-﻿
+﻿namespace Clarity.Dev.Reports;
 
-namespace Clarity.Dev.Reports;
-
-public class HtmlReportGenerator
+/// <summary>
+/// Generates HTML reports from solution analysis results 🦢
+/// </summary>
+public class HtmlReportGenerator : IHtmlReportGenerator
 {
     public string GenerateReport(SolutionModels.SolutionAnalysisResult result, string outputPath)
     {

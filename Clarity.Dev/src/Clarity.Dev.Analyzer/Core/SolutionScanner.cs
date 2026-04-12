@@ -1,26 +1,24 @@
-﻿namespace Clarity.Dev.NET.Analyzer.Core;
+using Clarity.Dev.NET.Core.Exceptions;
 
 /// <summary>
 /// Main orchestrator for analyzing .NET solutions 🦢
 /// </summary>
 /// <param name="projectParser"></param>
 public class SolutionScanner(
-    ProjectParser projectParser,
-    ServiceDetector serviceDetector,
-    CommunicationAnalyzer communicationAnalyzer,
-    CircularDependencyDetector circularDependencyDetector)
+    IProjectParser projectParser,
+    IServiceDetector serviceDetector,
+    ICommunicationAnalyzer communicationAnalyzer,
+    ICircularDependencyDetector circularDependencyDetector,
+    ISlnxParser slnxParser,
+    IConsoleService consoleService) : ISolutionScanner
 {
-    private readonly ProjectParser _projectParser = projectParser;
-    private readonly ServiceDetector _serviceDetector = serviceDetector;
-    private readonly CommunicationAnalyzer _communicationAnalyzer = communicationAnalyzer;
-    private readonly CircularDependencyDetector _circularDependencyDetector = circularDependencyDetector;
+    private readonly IProjectParser _projectParser = projectParser;
+    private readonly IServiceDetector _serviceDetector = serviceDetector;
+    private readonly ICommunicationAnalyzer _communicationAnalyzer = communicationAnalyzer;
+    private readonly ICircularDependencyDetector _circularDependencyDetector = circularDependencyDetector;
+    private readonly ISlnxParser _slnxParser = slnxParser;
+    private readonly IConsoleService _consoleService = consoleService;
 
-    /// <summary>
-    /// Analyzes a .NET solution (.sln or .slnx) and returns comprehensive analysis results 🦢
-    /// </summary>
-    /// <param name="solutionPath"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
     public async Task<SolutionModels.SolutionAnalysisResult> AnalyzeSolutionAsync(
         string solutionPath,
         CancellationToken cancellationToken = default)
@@ -29,7 +27,7 @@ public class SolutionScanner(
 
         if(!File.Exists(solutionPath))
         {
-            throw new FileNotFoundException("Solution file not found.", solutionPath);
+            throw new SourceNotFoundException(solutionPath, "file not found");
         }
 
         var result = new SolutionModels.SolutionAnalysisResult
@@ -39,9 +37,10 @@ public class SolutionScanner(
             AnalyzedAt = DateTime.UtcNow
         };
 
-        Console.WriteLine($"Analyzing Solution: {result.SolutionName}");
+        _consoleService.DisplayInfo($"Analyzing Solution: {result.SolutionName}");
 
         // Step 1: Detect solution file type and load projects accordingly
+        cancellationToken.ThrowIfCancellationRequested();
         var extension = Path.GetExtension(solutionPath).ToLowerInvariant();
         AdhocWorkspace workspace;
         AnalyzerManager? manager = null;
@@ -49,24 +48,25 @@ public class SolutionScanner(
         if (SolutionExtensionTypeHelper.IsSlnxFile(extension))
         {
             // Parse .slnx file manually and create workspace
-            Console.WriteLine("Detexted .slnx file (XML-based solution)");
-            workspace = await LoadSlnxSolutionAsync(solutionPath);
+            _consoleService.DisplayInfo("Detexted .slnx file (XML-based solution)");
+            workspace = await LoadSlnxSolutionAsync(solutionPath, _slnxParser);
         }
         else if(SolutionExtensionTypeHelper.IsSlnFile(extension))
         {
             // Use Buildalyze to scan traditional .sln file
-            Console.WriteLine("Detected .sln file (traditional solution)");
+            _consoleService.DisplayInfo("Detected .sln file (traditional solution)");
             manager = new(solutionPath);
             workspace = manager.GetWorkspace();
         }
         else
         {
-            throw new NotSupportedException("Unsupported solution file type.");
+            throw new SourceNotFoundException(solutionPath, $"unsupported file type '{extension}'");
         }
 
-        Console.WriteLine($"Found {workspace.CurrentSolution.Projects.Count()} projects");
+        _consoleService.DisplayInfo($"Found {workspace.CurrentSolution.Projects.Count()} projects");
 
         // Step 2: Parse and analyze each project in solution in parallel
+        cancellationToken.ThrowIfCancellationRequested();
         var projectTasks = workspace.CurrentSolution.Projects
             .Select(async project =>
             {
@@ -76,7 +76,7 @@ public class SolutionScanner(
                 }
                 catch(Exception ex)
                 {
-                    Console.WriteLine($"Error parsing project {project.Name}: {ex.Message}");
+                    _consoleService.DisplayError(ex.Message);
                     return null;
                 }
             });
@@ -86,9 +86,10 @@ public class SolutionScanner(
             .Cast<SolutionModels.ProjectInfo>()
             .ToList();
 
-        Console.WriteLine($"Successfully parsed {result.Projects.Count} projects!");
+        _consoleService.DisplayInfo($"Successfully parsed {result.Projects.Count} projects!");
 
         // Step 3: Detect services in each project
+        cancellationToken.ThrowIfCancellationRequested();
         foreach(var projectInfo in result.Projects)
         {
             var roslynProject = workspace.CurrentSolution.Projects.FirstOrDefault(proj => proj.Name == projectInfo.Name);
@@ -100,20 +101,22 @@ public class SolutionScanner(
             }
         }
 
-        Console.WriteLine($"Detected {result.Projects.Sum(p => p.DetectedServices.Count)} services");
+        _consoleService.DisplayInfo($"Detected {result.Projects.Sum(p => p.DetectedServices.Count)} services");
 
         // Step 4: Analyze service communication
+        cancellationToken.ThrowIfCancellationRequested();
         result.ServiceCommunications = await _communicationAnalyzer.AnalyzeCommunicationAsync(
             workspace.CurrentSolution,
             result.Projects,
             cancellationToken);
 
         // Step 5: Detect circular dependencies
+        cancellationToken.ThrowIfCancellationRequested();
         result.CircularDependencies = _circularDependencyDetector.DetectCircularDependencies(result.Projects);
 
         if (result.CircularDependencies.Any())
         {
-            Console.WriteLine($"⚠️  WARNING: Found {result.CircularDependencies.Count} circular dependencies!");
+            _consoleService.DisplayWarning($"⚠️  WARNING: Found {result.CircularDependencies.Count} circular dependencies!");
         }
 
         // Step 6: Calculate 
@@ -137,10 +140,10 @@ public class SolutionScanner(
     /// </summary>
     /// <param name="slnxPath">Path to .slnx file</param>
     /// <returns></returns>
-    private async Task<AdhocWorkspace> LoadSlnxSolutionAsync(string slnxPath)
+    private async Task<AdhocWorkspace> LoadSlnxSolutionAsync(string slnxPath, ISlnxParser slnxParser)
     {
         var workspace = new AdhocWorkspace();
-        var projectPaths = SlnxParser.ParseSlnx(slnxPath);
+        var projectPaths = slnxParser.ParseSlnx(slnxPath);
 
         foreach(var projectPath in projectPaths)
         {
@@ -165,7 +168,7 @@ public class SolutionScanner(
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"Warning: Could not load project{projectPath}: {ex.Message}");
+                _consoleService.DisplayError($"Warning: Could not load project{projectPath}", ex.Message);
             }
         }
 
