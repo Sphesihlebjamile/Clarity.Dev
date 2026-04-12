@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - '*release*'
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          include-prerelease: true
+
+      - name: Restore dependencies
+        working-directory: ./Clarity.Dev
+        run: dotnet restore
+
+      - name: Publish Windows x64
+        working-directory: ./Clarity.Dev
+        run: |
+          dotnet publish src/Clarity.Dev.CLI/Clarity.Dev.CLI.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -o ./publish/win-x64
+
+      - name: Publish Linux x64
+        working-directory: ./Clarity.Dev
+        run: |
+          dotnet publish src/Clarity.Dev.CLI/Clarity.Dev.CLI.csproj `
+            -c Release `
+            -r linux-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -o ./publish/linux-x64
+
+      - name: Zip Artifacts
+        working-directory: ./Clarity.Dev/publish
+        run: |
+          Compress-Archive -Path ./win-x64/* -DestinationPath ./Clarity.Dev-win-x64.zip
+          # For linux, we zip the file found in linux-x64
+          Compress-Archive -Path ./linux-x64/* -DestinationPath ./Clarity.Dev-linux-x64.zip
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            ./Clarity.Dev/publish/Clarity.Dev-win-x64.zip
+            ./Clarity.Dev/publish/Clarity.Dev-linux-x64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

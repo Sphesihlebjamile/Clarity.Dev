@@ -4,6 +4,7 @@
 
 [![.NET 8.0](https://img.shields.io/badge/.NET-8.0-purple)](https://dotnet.microsoft.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](https://opensource.org/licenses/MIT)
+[![Latest Release](https://img.shields.io/github/v/release/Sphesihlebjamile/Clarity.Dev?label=latest%20release&color=blue)](https://github.com/Sphesihlebjamile/Clarity.Dev/releases/latest)
 
 ## Overview
 
@@ -29,9 +30,12 @@ Once completed, Clarity.Dev will offer the following features:
 
 ### Installation
 
-Currently, you need to build from source:
+**Option 1: Download Binaries (Recommended)**
+You can download the latest pre-built binaries for Windows and Linux from the [Releases](https://github.com/Sphesihlebjamile/Clarity.Dev/releases) page. Simply download the zip for your platform, extract it, and run the `Clarity.Dev.CLI` executable.
 
-```
+**Option 2: Build from Source**
+If you prefer to build it yourself:
+```bash
 git clone https://github.com/Sphesihlebjamile/Clarity.Dev.git
 cd Clarity.Dev
 dotnet build
