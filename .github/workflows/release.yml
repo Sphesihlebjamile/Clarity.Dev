@@ -53,12 +53,18 @@ jobs:
           # For linux, we zip the file found in linux-x64
           Compress-Archive -Path ./linux-x64/* -DestinationPath ./Clarity.Dev-linux-x64.zip
 
+      - name: Extract version
+        id: extract_version
+        run: |
+          $version = "${{ github.ref_name }}" -replace '^release/', ''
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          tag_name: ${{ steps.extract_version.outputs.version }}
+          name: Release ${{ steps.extract_version.outputs.version }}
           draft: false
           prerelease: false
           files: |
