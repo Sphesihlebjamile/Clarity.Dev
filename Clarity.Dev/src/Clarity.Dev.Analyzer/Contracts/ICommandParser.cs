@@ -1,6 +1,4 @@
-﻿using Clarity.Dev.NET.Core.Models.Contracts;
-
-namespace Clarity.Dev.NET.Analyzer.Contracts;
+﻿namespace Clarity.Dev.NET.Analyzer.Contracts;
 
 public interface ICommandParser
 {

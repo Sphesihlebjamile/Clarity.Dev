@@ -1,5 +1,3 @@
-using Clarity.Dev.NET.Core.Models.Contracts;
-
 namespace Clarity.Dev.NET.Core.Models;
 
 public class AnalysisCommand : IAnalysisCommand

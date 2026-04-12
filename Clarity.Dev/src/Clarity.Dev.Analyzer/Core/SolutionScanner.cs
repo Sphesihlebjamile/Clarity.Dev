@@ -1,4 +1,4 @@
-namespace Clarity.Dev.NET.Analyzer.Core;
+using Clarity.Dev.NET.Core.Exceptions;
 
 /// <summary>
 /// Main orchestrator for analyzing .NET solutions 🦢
@@ -27,7 +27,7 @@ public class SolutionScanner(
 
         if(!File.Exists(solutionPath))
         {
-            throw new FileNotFoundException("Solution file not found.", solutionPath);
+            throw new SourceNotFoundException(solutionPath, "file not found");
         }
 
         var result = new SolutionModels.SolutionAnalysisResult
@@ -60,7 +60,7 @@ public class SolutionScanner(
         }
         else
         {
-            throw new NotSupportedException("Unsupported solution file type.");
+            throw new SourceNotFoundException(solutionPath, $"unsupported file type '{extension}'");
         }
 
         _consoleService.DisplayInfo($"Found {workspace.CurrentSolution.Projects.Count()} projects");

@@ -1,6 +1,3 @@
-using System.Reflection;
-using Clarity.Dev.CLI.Contracts;
-
 namespace Clarity.Dev.CLI.Services;
 
 public class VersionProvider : IVersionProvider

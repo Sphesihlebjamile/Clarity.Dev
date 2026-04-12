@@ -1,8 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-using Clarity.Dev.CLI.Contracts;
-using Clarity.Dev.CLI.Services;
-using Clarity.Dev.Reports.Contracts;
-
 namespace Clarity.Dev.CLI.Extensions;
 
 public static class ServiceCollectionExtensions

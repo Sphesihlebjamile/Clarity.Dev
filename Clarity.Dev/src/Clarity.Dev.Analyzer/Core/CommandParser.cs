@@ -1,5 +1,3 @@
-﻿using Clarity.Dev.NET.Core.Models.Contracts;
-
 namespace Clarity.Dev.NET.Analyzer.Core;
 
 public class CommandParser : ICommandParser
@@ -43,11 +41,11 @@ public class CommandParser : ICommandParser
             {
                 if (!OutputFormatTypesHelper.IsValidOutputFormat(args[i + 1]))
                 {
-                    throw new Exception("Invalid Output Format!");
+                    throw new InvalidOutputFormatException(args[i + 1]);
                 }
                 if (File.Exists(args[i + 1]))
                 {
-                    throw new Exception("Output file already exists!");
+                    throw new OutputFileExistsException(args[i + 1]);
                 }
                 if (!string.IsNullOrEmpty(command.OutputFormat))
                 {
@@ -79,7 +77,7 @@ public class CommandParser : ICommandParser
             }
             else
             {
-                throw new Exception($"Unrecognized argument: {args[i]}");
+                throw new CommandParsingException($"Unrecognized argument: '{args[i]}'.");
             }
         }
 

@@ -1,6 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
-using Clarity.Dev.CLI.Contracts;
-using Clarity.Dev.CLI.Extensions;
+
 
 var serviceProvider = new ServiceCollection()
     .AddClarityCli()

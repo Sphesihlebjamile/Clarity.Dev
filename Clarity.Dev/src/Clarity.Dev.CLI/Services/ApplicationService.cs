@@ -1,6 +1,3 @@
-using Clarity.Dev.CLI.Contracts;
-using Clarity.Dev.Reports.Contracts;
-
 namespace Clarity.Dev.CLI.Services;
 
 public class ApplicationService : IApplicationService
